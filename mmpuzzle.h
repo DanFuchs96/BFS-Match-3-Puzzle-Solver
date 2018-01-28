@@ -13,11 +13,13 @@ private:
     int m_height; //Height of the board
     int m_pool; //Height of the pool
     int m_num_types; //Number of distinct part types
+    void drawDivider();
 
 public:
     MMPuzzle(int width, int height, int pool, int num_types);
     void setBoard();
     void draw();
+    void fall();
 };
 
 #endif
