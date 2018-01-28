@@ -109,7 +109,6 @@ void MMPuzzle::fall()
             }
         }
     }
-    draw(); //DEBUG
     return;
 }
 
@@ -118,7 +117,7 @@ void MMPuzzle::match()
     int match_target = -1; //Stores target value for match
 
     //Part 1: Checking for matches
-    for(int i = 0; i < m_height; i++)
+    for(int i = m_pool; i < m_height; i++) //Note all matches occur below pool
     {
         for(int j = 0; j < m_width; j++)
         {
@@ -162,7 +161,7 @@ void MMPuzzle::match()
         {
             if(m_rmv_flags[j][i]) //Part marked for removal
             {
-                m_board = 0; //Remove part
+                m_board[j][i] = 0; //Remove part
                 m_rmv_flags[j][i] = false;
                 m_score++; //Record removal
             }
