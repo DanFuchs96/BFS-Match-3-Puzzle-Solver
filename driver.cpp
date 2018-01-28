@@ -4,18 +4,20 @@ using namespace std;
 
 int main()
 {
-    MMPuzzle NCC(5, 5, 2, 3);
+    MMPuzzle NCC(4, 4, 1, 4);
     NCC.setBoard();
     NCC.draw();
     NCC.match();
-    cout << "Exchange: ";
-    int input[4];
-    for(int i = 0; i < 4; i++)
+    cout << "Exchange: " << endl;
+    int a, b;
+    char c;
+    while(true)
     {
-        cin >> input[i];
+        cin >> a; cin >> b; cin >> c;
+        NCC.exchange(a, b, c);
+        NCC.match();
+        if(c == 'z') break;
     }
-    NCC.exchange(input[0], input[1], input[2], input[3]);
-    NCC.match();
     cout << "Current score:" << NCC.getScore() << endl;
     return 0;
 }

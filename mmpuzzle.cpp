@@ -117,7 +117,7 @@ void MMPuzzle::fall()
 void MMPuzzle::match()
 {
     fall(); //Ensure no parts are floating
-    draw(); //DEBUG
+    printf("Now settling..\n"); draw(); //DEBUG
     int match_target = -1; //Stores target value for match
     int match_count = 0; //Number of matches found this cycle
 
@@ -182,6 +182,7 @@ void MMPuzzle::match()
 
 void MMPuzzle::exchange(int x1, int y1, char dir)
 {
+    //Determine move direction
     bool isHorizontal = false;
     if (dir == 'R' || dir == 'r') isHorizontal = true;
     else if (dir != 'D' && dir != 'd')
@@ -189,15 +190,19 @@ void MMPuzzle::exchange(int x1, int y1, char dir)
         cout << "Exchange rejected: invalid direction" << endl;
         return;
     }
-    if  (  (x1 < 0 || y1 < 0 || x1 > m_width - 1 || y1 > m_height - 1)
-        || (isHorizontal && x1 == m_width - 1) || (!isHorizontal && y1 == m_height - 1) )
+
+    //Check for move validity within rules of game
+    if  (  (x1 < 0 || y1 < 0 || x1 > m_width - 1 || y1 > m_height - 1) || (y1 < m_pool)
+           || (isHorizontal && x1 == m_width - 1) || (!isHorizontal && y1 == m_height - 1) )
     {
         cout << "Exchange rejected: invalid move" << endl;
         return; //Invalid exchange, do nothing
     }
+
+    //Perform swap
     int temp = m_board[x1][y1];
     int x2 = x1;
-    int y2 = y2;
+    int y2 = y1;
     if(isHorizontal) x2++; else y2++;
     m_board[x1][y1] = m_board[x2][y2];
     m_board[x2][y2] = temp;
