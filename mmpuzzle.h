@@ -16,13 +16,15 @@ private:
     int m_pool;      //Height of the pool
     int m_num_types; //Number of distinct part types
     void drawDivider();
+    void fall();
 
 public:
     MMPuzzle(int width, int height, int pool, int num_types);
+    int getScore() { return m_score; };
     void setBoard();
     void draw();
-    void fall();
     void match();
+    void exchange(int x1, int x2, char dir);
 };
 
 #endif
