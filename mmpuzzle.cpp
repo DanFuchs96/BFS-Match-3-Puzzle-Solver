@@ -180,31 +180,78 @@ void MMPuzzle::match()
     return;
 }
 
-void MMPuzzle::exchange(int x1, int y1, char dir)
+void MMPuzzle::swap(int x1, int y1, int x2, int y2)
 {
-    //Determine move direction
-    bool isHorizontal = false;
-    if (dir == 'R' || dir == 'r') isHorizontal = true;
-    else if (dir != 'D' && dir != 'd')
+    if(checkSwap(x1, y1, x2, y2))
     {
-        cout << "Exchange rejected: invalid direction" << endl;
-        return;
+        int temp = m_board[x1][y1];
+        m_board[x1][y1] = m_board[x2][y2];
+        m_board[x2][y2] = temp;
     }
+    else
+    {
+        cout << "Error, invalid swap requested." << endl;
+    }
+    return;
+}
+
+bool MMPuzzle::checkSwap(int x1, int y1, int x2, int y2)
+{
+    int src_x = -1; //Stores x closest to origin (0,0), used to simplify bound-checking
+    int src_y = -1; //Stores y closest to origin
+    char direction; //Indicates direction the tile closest to the origin is swapping
+
+    if(x1 + 1 == x2 || y1 + 1 == y2) { src_x = x1; src_y = y1; }
+    else if(x1 - 1 == x2 || y1 - 1 == y2) { src_x = x2; src_y = y2; }
+    else return false; //else tiles are not adjacent
+
+    if(x1 != x2 && y1 == y2) { direction = 'R'; }
+    else if(x1 == x2 && y1 != y2) { direction = 'D'; }
+    else return false; //else tiles are not adjacent
 
     //Check for move validity within rules of game
-    if  (  (x1 < 0 || y1 < 0 || x1 > m_width - 1 || y1 > m_height - 1) || (y1 < m_pool)
-           || (isHorizontal && x1 == m_width - 1) || (!isHorizontal && y1 == m_height - 1) )
+    if  (  (src_x < 0 || src_y < 0 || src_x > m_width - 1 || src_y > m_height - 1) || (src_y < m_pool)
+           || (direction == 'R' && x1 == m_width - 1) || (direction == 'D' && y1 == m_height - 1) )
     {
-        cout << "Exchange rejected: invalid move" << endl;
-        return; //Invalid exchange, do nothing
+        return false; //move is out of bounds
     }
 
-    //Perform swap
+    //Perform the swap
     int temp = m_board[x1][y1];
-    int x2 = x1;
-    int y2 = y1;
-    if(isHorizontal) x2++; else y2++;
     m_board[x1][y1] = m_board[x2][y2];
     m_board[x2][y2] = temp;
-    return;
+
+    //Ensure a match was found
+    bool isValid = checkMatch();
+
+    //Revert the swap
+    m_board[x2][y2] = m_board[x1][y1];
+    m_board[x1][y1] = temp;
+
+    return isValid;
+}
+
+bool MMPuzzle::checkMatch()
+{
+    for(int i = m_pool; i < m_height; i++) //All matches occur below pool
+    {
+        for(int j = 0; j < m_width; j++)
+        {
+            if(j + 2 < m_width) //Check for a horizontal match
+            {
+                if(m_board[j+1][i] == m_board[j][i] && m_board[j+2][i] == m_board[j][i])
+                {
+                    return true; //Match Found
+                }
+            }
+            if(i + 2 < m_height) //Check for a vertical match
+            {
+                if(m_board[j][i+1] == m_board[j][i] && m_board[j][i+2] == m_board[j][i])
+                {
+                    return true; //Match Found
+                }
+            }
+        }
+    }
+    return false; //If loops exits, no matches were found
 }

@@ -24,7 +24,9 @@ public:
     void setBoard();
     void draw();
     void match();
-    void exchange(int x1, int x2, char dir);
+    void swap(int x1, int y1, int x2, int y2);
+    bool checkSwap(int x1, int y1, int x2, int y2);
+    bool checkMatch();
 };
 
 #endif
