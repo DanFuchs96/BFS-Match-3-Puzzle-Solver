@@ -21,7 +21,7 @@ private:
 public:
     MMPuzzle(int width, int height, int pool, int num_types);
     int getScore() { return m_score; };
-    void setBoard();
+    void setBoard(const vector< vector<int> > & initial_setup);
     void draw();
     void match();
     void swap(int x1, int y1, int x2, int y2);

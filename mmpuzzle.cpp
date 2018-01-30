@@ -37,14 +37,14 @@ MMPuzzle::MMPuzzle(int width, int height, int pool, int num_types)
     }
 }
 
-void MMPuzzle::setBoard()
+void MMPuzzle::setBoard(const vector< vector<int> > & initial_setup)
 {
     int temp;
     for(int i = 0; i < m_height; i++)
     {
         for(int j = 0; j < m_width; j++)
         {
-            cin >> temp;
+            temp = initial_setup[i][j];
             if(temp > 0 && temp <= m_num_types) m_board[j][i] = temp;
             else { cout << "Invalid part type, setting to empty space..." << endl; m_board[j][i] = 0; }
         }
