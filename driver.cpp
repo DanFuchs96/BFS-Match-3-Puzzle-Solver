@@ -9,14 +9,12 @@ int main()
     NCC.draw();
     NCC.match();
     cout << "Exchange: " << endl;
-    int a, b;
-    char c;
-    while(true)
+    int a, b, c, d(0);
+    while(d != -1)
     {
-        cin >> a; cin >> b; cin >> c;
-        NCC.exchange(a, b, c);
+        cin >> a; cin >> b; cin >> c; cin >> d;
+        NCC.swap(a, b, c, d);
         NCC.match();
-        if(c == 'z') break;
     }
     cout << "Current score:" << NCC.getScore() << endl;
     return 0;
