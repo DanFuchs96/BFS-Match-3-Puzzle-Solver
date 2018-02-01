@@ -49,13 +49,21 @@ int main(int argc, char* argv[])
     MMPuzzle NCC(board_width, board_height, pool_height, part_types);
     NCC.setBoard(initial_state);
     NCC.draw();
+    if(NCC.checkMatch())
+    {
+        NCC.match(); //Clear out any pre-existing matches
+        NCC.draw(); //Redraw board
+    }
 
     //Ready Play-test
-    NCC.match();
-    cout << "Exchange: " << endl;
+    vector<CoordPair> actions;
+
     int a, b, c, d(0);
     while(d != -1)
     {
+        actions = NCC.validMoves(); cout << "Available Moves: " << endl;
+        for(int i = 0; i < actions.size(); i++) cout << actions[i] << endl;
+        cout << "Exchange: " << endl;
         cin >> a; cin >> b; cin >> c; cin >> d;
         NCC.swap(a, b, c, d);
         NCC.match();

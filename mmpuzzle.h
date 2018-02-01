@@ -18,17 +18,19 @@ private:
     int m_num_types; //Number of distinct part types
     void drawDivider();
     void fall();
+    bool checkSwap(const CoordPair & targets);
+    bool checkSwap(int x1, int y1, int x2, int y2);
 
 public:
     MMPuzzle(int width, int height, int pool, int num_types);
-    int getScore() { return m_score; };
+    MMPuzzle(const MMPuzzle & rhs);
+    int getScore()const { return m_score; };
     void setBoard(const vector< vector<int> > & initial_setup);
     void draw();
     void match();
     void swap(int x1, int y1, int x2, int y2);
-    void swap(CoordPair targets);
-    bool checkSwap(int x1, int y1, int x2, int y2);
-    bool checkSwap(CoordPair targets);
+    void swap(const CoordPair & targets);
+
     bool checkMatch();
     vector<CoordPair> validMoves();
 };

@@ -37,6 +37,23 @@ MMPuzzle::MMPuzzle(int width, int height, int pool, int num_types)
     }
 }
 
+MMPuzzle::MMPuzzle(const MMPuzzle & rhs)
+{
+    //Assignment
+    m_score = rhs.m_score;
+    m_width = rhs.m_width;
+    m_height = rhs.m_height;
+    m_pool = rhs.m_pool;
+    m_num_types = rhs.m_num_types;
+
+    //Game-space Copying
+    for(int i = 0; i < rhs.m_width; i++)
+    {
+        m_board.push_back(rhs.m_board[i]);
+        m_rmv_flags.push_back(rhs.m_rmv_flags[i]);
+    }
+}
+
 void MMPuzzle::setBoard(const vector< vector<int> > & initial_setup)
 {
     int temp;
@@ -44,11 +61,12 @@ void MMPuzzle::setBoard(const vector< vector<int> > & initial_setup)
     {
         for(int j = 0; j < m_width; j++)
         {
-            temp = initial_setup[i][j];
+            temp = initial_setup[i][j]; //Note the the values are transposed from the board's coordinates
             if(temp > 0 && temp <= m_num_types) m_board[j][i] = temp;
             else { cout << "Invalid part type, setting to empty space..." << endl; m_board[j][i] = 0; }
         }
     }
+    fall(); //If any empty spaces were created, settle board by allowing pieces to fall
     return;
 }
 
@@ -117,7 +135,6 @@ void MMPuzzle::fall()
 void MMPuzzle::match()
 {
     fall(); //Ensure no parts are floating
-    printf("Now settling..\n"); draw(); //DEBUG
     int match_target = -1; //Stores target value for match
     int match_count = 0; //Number of matches found this cycle
 
@@ -174,13 +191,12 @@ void MMPuzzle::match()
     if(match_count > 0)
     {
         m_score += match_count; //Update score
-        draw(); printf("Added %i points\n", match_count); //DEBUG
         match(); //Recursively continue to check for matches
     }
     return;
 }
 
-void MMPuzzle::swap(CoordPair targets)
+void MMPuzzle::swap(const CoordPair & targets)
 {
     swap(targets.m_x1, targets.m_y1, targets.m_x2, targets.m_y2);
     return;
@@ -201,7 +217,7 @@ void MMPuzzle::swap(int x1, int y1, int x2, int y2)
     return;
 }
 
-bool MMPuzzle::checkSwap(CoordPair targets)
+bool MMPuzzle::checkSwap(const CoordPair & targets)
 {
     return checkSwap(targets.m_x1, targets.m_y1, targets.m_x2, targets.m_y2);
 }
@@ -269,5 +285,33 @@ bool MMPuzzle::checkMatch()
 
 vector<CoordPair> MMPuzzle::validMoves()
 {
-    return vector<CoordPair>();
+    vector<CoordPair> possible_moves;
+    CoordPair* temp;
+    for(int i = m_pool; i < m_height; i++) //Begin by finding possible horizontal swaps
+    {
+        for(int j = 0; j < m_width - 1; j++)
+        {
+            if(checkSwap(j, i, j+1, i))
+            {
+                temp = new CoordPair(j, i, j+1, i); //Create coordinate pair representing swap
+                possible_moves.push_back(*temp); //Add to possible moves
+                delete temp;
+                temp = '\0';
+            }
+        }
+    }
+    for(int i = m_pool; i < m_height - 1; i++) //Find possible vertical swaps
+    {
+        for(int j = 0; j < m_width; j++)
+        {
+            if(checkSwap(j, i, j, i+1))
+            {
+                temp = new CoordPair(j, i, j, i+1);
+                possible_moves.push_back(*temp);
+                delete temp;
+                temp = '\0';
+            }
+        }
+    }
+    return possible_moves;
 }
