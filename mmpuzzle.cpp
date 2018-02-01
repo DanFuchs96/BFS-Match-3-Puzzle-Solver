@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <cstdlib>
 #include <cstdio>
+#include "coordpair.h"
 #include "mmpuzzle.h"
 using namespace std;
 
@@ -180,6 +180,12 @@ void MMPuzzle::match()
     return;
 }
 
+void MMPuzzle::swap(CoordPair targets)
+{
+    swap(targets.m_x1, targets.m_y1, targets.m_x2, targets.m_y2);
+    return;
+}
+
 void MMPuzzle::swap(int x1, int y1, int x2, int y2)
 {
     if(checkSwap(x1, y1, x2, y2))
@@ -193,6 +199,11 @@ void MMPuzzle::swap(int x1, int y1, int x2, int y2)
         cout << "Error, invalid swap requested." << endl;
     }
     return;
+}
+
+bool MMPuzzle::checkSwap(CoordPair targets)
+{
+    return checkSwap(targets.m_x1, targets.m_y1, targets.m_x2, targets.m_y2);
 }
 
 bool MMPuzzle::checkSwap(int x1, int y1, int x2, int y2)
@@ -254,4 +265,9 @@ bool MMPuzzle::checkMatch()
         }
     }
     return false; //If loops exits, no matches were found
+}
+
+vector<CoordPair> MMPuzzle::validMoves()
+{
+    return vector<CoordPair>();
 }

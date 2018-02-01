@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include "coordpair.h"
 using namespace std;
 
 #ifndef NCC_MMPUZZLE_H
@@ -25,8 +26,11 @@ public:
     void draw();
     void match();
     void swap(int x1, int y1, int x2, int y2);
+    void swap(CoordPair targets);
     bool checkSwap(int x1, int y1, int x2, int y2);
+    bool checkSwap(CoordPair targets);
     bool checkMatch();
+    vector<CoordPair> validMoves();
 };
 
 #endif

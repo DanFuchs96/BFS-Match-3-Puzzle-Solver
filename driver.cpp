@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <string>
+#include "coordpair.h"
 #include "mmpuzzle.h"
 using namespace std;
 
