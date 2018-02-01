@@ -67,7 +67,8 @@ int main(int argc, char* argv[])
         cin >> a; cin >> b; cin >> c; cin >> d;
         NCC.swap(a, b, c, d);
         NCC.match();
+        cout << "Current score:" << NCC.getScore() << endl;
     }
-    cout << "Current score:" << NCC.getScore() << endl;
+
     return 0;
 }
