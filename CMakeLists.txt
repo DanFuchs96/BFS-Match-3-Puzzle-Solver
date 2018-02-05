@@ -1,2 +1,2 @@
 project (NCC)
-add_executable(NCC driver.cpp mmpuzzle.cpp coordpair.cpp)
+add_executable(NCC main.cpp mmpuzzle.cpp coordpair.cpp bfts_node.cpp)
