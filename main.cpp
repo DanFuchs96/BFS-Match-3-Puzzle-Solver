@@ -328,8 +328,9 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     scenario.goal_score = quota;
     scenario.swap_limit = max_swaps;
 
-    // EXECUTE ID-DFTS ALGORITHM
-    Solution result = ID_DFTS_Algoritm(scenario); //Executes ID-DFTS Algorithm, storing outcome
+    // EXECUTE ALGORITHM
+    Solution result = BFTS_Algorithm(scenario); //Executes Algorithm, storing outcome
+    //Candidates for execution are: BFTS_Algorithm(), ID-DFTS_Algorithm()
 
     // OUTPUT FILE GENERATION
     cout << quota << endl;
