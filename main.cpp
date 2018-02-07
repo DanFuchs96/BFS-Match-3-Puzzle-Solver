@@ -12,11 +12,9 @@
 #include <fstream>
 #include <cstdlib>
 #include <vector>
-#include <deque>
 #include <sys/time.h>
 #include "coordpair.h"
 #include "mmpuzzle.h"
-#include "bfts_node.h"
 #include "dlts_node.h"
 using namespace std;
 
@@ -27,8 +25,7 @@ using namespace std;
 ///    a) DLTS_Recursive()
 ///    b) DLTS_Algorithm()
 ///    c) ID_DFTS_Algorithm()
-/// 3) BFTS ALGORITHM
-/// 4) MAIN PROGRAM
+/// 3) MAIN PROGRAM
 
 
 //////////////////////////////////
@@ -181,93 +178,6 @@ Solution ID_DFTS_Algoritm(Problem & info)
     results.runtime /= 1000000.0;
     results.runtime += (t_end.tv_sec - t_start.tv_sec);
 
-    return results;
-}
-
-
-
-//////////////////////////////////////////
-///BREADTH-FIRST TREE SEARCH ALGORITHM///
-////////////////////////////////////////
-
-///DESCRIPTION: This is the implementation of the BFTS Algorithm. Rather than an using a solution function, a Solution
-///  object is created which stores the results of the Algorithm. This implementation also tracks it's runtime;
-///  the period measured begins with the first execution-relevant declaration and ends when a goal node is found.
-///  Note that this implementation checks the root node explicitly for being a solution, but checks the rest of the
-///  states for goal status right before placing them in the frontier.
-///PRECONDITIONS: None. Negatives values for goal_score and swap_limit still function as expected. Puzzle validity
-///  is ensured in the MMPuzzle constructor.
-///POSTCONDITIONS: A completed Solution object is returned. If success = false, vector move_sequence remains empty.
-///  Otherwise, the sequence of swaps that lead to a goal state will be stored in reverse order.
-
-Solution BFTS_Algorithm(Problem & info)
-{
-    // SOLUTION SETUP
-    Solution results;              //Stores results
-    results.success = false;       //Tracks if solution has yet been found
-    struct timeval t_start, t_end; //Stores start and end time
-
-    // TREE-STRUCTURE SETUP
-    gettimeofday(&t_start, NULL);                      //Algorithm-relevant declarations begin, so timer starts
-    BFTS_Node root_node(info.goal_score, info.puzzle); //Create root node for tree structure
-    vector<BFTS_Node*> NODE_MEMORY;                    //Tracks all children nodes; used in memory cleanup
-
-    // FRONTIER INITIALIZATION
-    deque<BFTS_Node*> FRONTIER;                 //FIFO Queue, stores pointers to all nodes in the frontier
-    FRONTIER.push_back(&root_node);             //Add root, or the initial state, to the frontier
-    BFTS_Node* current_node = FRONTIER.front(); //Pointer used to track frontier node being evaluated
-    BFTS_Node* child_node;                      //Pointer used to store newly-created children
-
-    // ACTION-RELATED DECLARATIONS
-    vector<CoordPair> action_list; //Stores list of available actions to a particular node
-    int num_possible_moves = 0;    //Stores number of available actions to a particular node
-    CoordPair selected_action;     //Stores action currently being evaluated
-
-    // BEGIN BFTS EXECUTION
-    if(current_node->GOAL()) results.success = true;  //Check if root state is a goal state
-    while(!results.success && !FRONTIER.empty())      //While goal state not found and frontier is nonempty
-    {
-        current_node = FRONTIER.front();
-        FRONTIER.pop_front();
-        if(current_node->PATH_COST < info.swap_limit)     //If current node is within reachable number of swaps
-        {
-            action_list = current_node->ACTIONS();        //Execute ACTIONS(), store valid swaps
-            num_possible_moves = (int)action_list.size(); //Store number of valid swaps
-            for(int i = 0; i < num_possible_moves; i++)   //For each valid swap
-            {
-                selected_action = action_list[i];
-                child_node = new BFTS_Node(*current_node, selected_action); //Create new child amd execute swap
-                if(child_node->GOAL())
-                {
-                    results.success = true;
-                    current_node = child_node;
-                    i = num_possible_moves; //Causes loop to exit after storing child node
-                }
-                FRONTIER.push_back(child_node);
-                NODE_MEMORY.push_back(child_node);
-            }
-        }
-    }
-    gettimeofday(&t_end, NULL); //Execution Complete, mark finish time
-    results.runtime = t_end.tv_usec - t_start.tv_usec;
-    results.runtime /= 1000000.0;
-    results.runtime += (t_end.tv_sec - t_start.tv_sec);
-
-    // STORE SOLUTION PATH
-    if(results.success)
-    {
-        while(current_node->PARENT != NULL)
-        {
-            results.move_sequence.push_back(current_node->PREV_ACTION);
-            current_node = current_node->PARENT;
-        }
-    }
-
-    // DEALLOCATE TREE / MEMORY CLEANUP
-    for(int i = ((int)NODE_MEMORY.size()) - 1; i >= 0; i--)
-    {
-        delete NODE_MEMORY[i];
-    }
     return results;
 }
 
