@@ -48,6 +48,16 @@ CoordPair & CoordPair::operator=(const CoordPair & rhs)
     return *this;
 }
 
+//Direct Assignment
+void CoordPair::setCord(int x1, int y1, int x2, int y2)
+{
+    m_x1 = x1;
+    m_y1 = y1;
+    m_x2 = x2;
+    m_y2 = y2;
+    return;
+}
+
 //Extraction Output Overload; used to output coordinate pairs cleanly
 ostream & operator<<(ostream & os, const CoordPair & rhs)
 {

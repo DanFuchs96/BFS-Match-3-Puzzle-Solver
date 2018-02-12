@@ -12,7 +12,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <vector>
-#include <sys/time.h>
+#include <ctime>
 #include "coordpair.h"
 #include "mmpuzzle.h"
 #include "dlts_node.h"
@@ -72,7 +72,7 @@ DLTS_Status DLTS_Recursive(DLTS_Node & parent, const int limit, const int max_sw
 {
     if(parent.GOAL()) { solution_node = &parent; return Success; }  //Goal state found, store address
     else if(limit == 0) { return Cutoff; }                          //Limit was reached, cutoff has occurred
-    else if(parent.PATH_COST >= max_swaps) { return Failure; }      //Swap limit reached, no possible children
+    else if(parent.m_pathcost >= max_swaps) { return Failure; }      //Swap limit reached, no possible children
     else
     {
         DLTS_Status status;
@@ -125,10 +125,10 @@ DLTSReturn DLTS_Algorithm(Problem & info, int depth)
     if(results.status == Success)
     {
         DLTS_Node* current_node = solution_node;
-        while(current_node->PARENT != NULL)
+        while(current_node->m_parent != NULL)
         {
-            results.move_sequence.push_back(current_node->PREV_ACTION);
-            current_node = current_node->PARENT;
+            results.move_sequence.push_back(current_node->m_prev_action);
+            current_node = current_node->m_parent;
         }
     }
 
@@ -147,15 +147,15 @@ DLTSReturn DLTS_Algorithm(Problem & info, int depth)
 ///POSTCONDITIONS: A completed Solution object is returned. If success = false, vector move_sequence remains empty.
 ///  Otherwise, the sequence of swaps that lead to a goal state will be stored in reverse order.
 
-Solution ID_DFTS_Algoritm(Problem & info)
+Solution ID_DFTS_Algorithm(Problem & info)
 {
     // SOLUTION SETUP
-    Solution results;               //Stores results
-    results.success = false;        //Tracks if solution has yet been found
-    struct timeval t_start, t_end;  //Stores start and end time
+    Solution results;                  //Stores results
+    results.success = false;           //Tracks if solution has yet been found
+    clock_t t_time;                    //Stores start and end time
 
     // INITIAL SETUP
-    gettimeofday(&t_start, NULL);      //Algorithm begins, timer starts
+    t_time = clock();                  //Algorithm begins, timer starts
     DLTSReturn iteration_results;      //Stores results of current iteration of DLTS
     iteration_results.status = Cutoff; //Signals to increase depth and continue iterating
     int depth = 0;                     //Tracks current allowed depth
@@ -173,11 +173,8 @@ Solution ID_DFTS_Algoritm(Problem & info)
     }
 
     // EVALUATE RUNTIME
-    gettimeofday(&t_end, NULL); //Execution Complete, mark finish time
-    results.runtime = t_end.tv_usec - t_start.tv_usec;
-    results.runtime /= 1000000.0;
-    results.runtime += (t_end.tv_sec - t_start.tv_sec);
-
+    t_time = clock() - t_time; //Execution Complete, mark finish time
+    results.runtime = static_cast<float>(t_time) / CLOCKS_PER_SEC;
     return results;
 }
 
@@ -239,7 +236,7 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     scenario.swap_limit = max_swaps;
 
     // EXECUTE ID-DFTS ALGORITHM
-    Solution result = ID_DFTS_Algoritm(scenario); //Executes ID-DFTS Algorithm, storing outcome
+    Solution result = ID_DFTS_Algorithm(scenario); //Executes ID-DFTS Algorithm, storing outcome
 
     // OUTPUT FILE GENERATION
     cout << quota << endl;

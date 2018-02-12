@@ -24,6 +24,7 @@ public:
     CoordPair(int x1, int y1, int x2, int y2);    //Explicit Constructor
     CoordPair(const CoordPair & rhs);             //Copy Constructor
     CoordPair & operator=(const CoordPair & rhs); //Operator Equals Overload
+    void setCord(int x1, int y1, int x2, int y2); //Direct Assignment
     friend ostream & operator<<(ostream & os, const CoordPair & rhs); //Stream Output
 };
 

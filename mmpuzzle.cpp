@@ -231,17 +231,15 @@ bool MMPuzzle::checkSwap(int x1, int y1, int x2, int y2)
 vector<CoordPair> MMPuzzle::validMoves()
 {
     vector<CoordPair> possible_moves;
-    CoordPair* temp;
+    CoordPair temp;
     for(int i = m_pool; i < m_height; i++) //Begin by finding possible horizontal swaps
     {
         for(int j = 0; j < m_width - 1; j++)
         {
             if(checkSwap(j, i, j+1, i))
             {
-                temp = new CoordPair(j, i, j+1, i); //Create coordinate pair representing swap
-                possible_moves.push_back(*temp); //Add to possible moves
-                delete temp;
-                temp = NULL;
+                temp.setCord(j, i, j+1, i); //Create coordinate pair representing swap
+                possible_moves.push_back(temp); //Add to possible moves
             }
         }
     }
@@ -251,10 +249,8 @@ vector<CoordPair> MMPuzzle::validMoves()
         {
             if(checkSwap(j, i, j, i+1))
             {
-                temp = new CoordPair(j, i, j, i+1);
-                possible_moves.push_back(*temp);
-                delete temp;
-                temp = NULL;
+                temp.setCord(j, i, j, i+1);
+                possible_moves.push_back(temp);
             }
         }
     }
