@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// PROGRAMMER: DANIEL FUCHS
 /// CLASS/SECT: CS5400A - ARTIFICIAL INTELLIGENCE
-/// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 2
-/// DATE: 2/7/18
-/// DESC: Function definition file for "Depth Limited Tree Search Node" class.
+/// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 3
+/// DATE: 2/15/18
+/// DESC: Function definition file for "Greedy Best First Search Node" class.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -20,6 +20,7 @@ GeBFGS_Node::GeBFGS_Node(int max_score, MMPuzzle & initial_state)
     m_prev_action = temp;
     m_parent = NULL;
     m_pathcost = 0;
+    m_heuristic = 0;
     goal_score = max_score;
 }
 
@@ -31,6 +32,12 @@ GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
     m_parent = rhs.m_parent;
     m_pathcost = rhs.m_pathcost;
     goal_score = rhs.goal_score;
+}
+
+//Heuristic Function
+int GeBFGS_Node::getHeuristic()
+{
+    return 0;
 }
 
 //GOAL Function
@@ -55,4 +62,5 @@ GeBFGS_Node::GeBFGS_Node(GeBFGS_Node & parent, CoordPair & action)
     m_parent = &parent;
     m_pathcost = parent.m_pathcost + 1;
     goal_score = parent.goal_score;
+    m_heuristic = getHeuristic();
 }
