@@ -48,7 +48,7 @@ public:
     void clear();
     void insert(GeBFGS_Node* & node);
     //void merge(GHP_Queue & incoming_queue);
-    GHPQ_Cell* pop();
+    GeBFGS_Node* pop();
 };
 
 

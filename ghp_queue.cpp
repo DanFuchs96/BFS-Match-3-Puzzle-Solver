@@ -27,7 +27,6 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
 {
     if (q_memory_head == NULL) //If memory is completely empty
     {
-        cout << "Type 0 initializer" << endl;
         q_front = new GHPQ_Cell();
         q_front->m_node = node;
         q_memory_head = q_front;
@@ -39,7 +38,6 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
         GHPQ_Cell* cell;
         if (q_memory_tail == q_front)                     //If there is no live memory, front insert
         {
-            cout << "Type 1 (Lifeless)" << endl;
             cell = new GHPQ_Cell();
             cell->m_node = node;
             q_front->m_next = cell;
@@ -49,7 +47,6 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
         {
             if (q_memory_tail == NULL)               //If there is no dead memory
             {
-                cout << "Type 2 (Deathless)" << endl;
                 cell = new GHPQ_Cell();
                 cell->m_node = node;
                 cell->m_next = q_front;
@@ -57,7 +54,6 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
             }
             else
             {
-                cout << "Type 3 (Improvement)" << endl;
                 cell = new GHPQ_Cell(q_memory_tail, node);
             }
             q_front = cell;
@@ -65,24 +61,23 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
         }
         else //Begin recursive insertion procedure
         {
+            bool lcv = true;
             GHPQ_Cell* target = q_front;
-            while (target->m_next != NULL)
+            while (target->m_next != NULL && lcv)
             {
-                if (heur_val < target->m_next->m_node->m_heuristic) { cout << "Type 4 (->Intermediate)" << endl; break; }
+                if (heur_val < target->m_next->m_node->m_heuristic) lcv = false;
                 else target = target->m_next;
             }
-            cout << "Type 5 (Final)" << endl;
             cell = new GHPQ_Cell(target, node);
             return;
         }
     }
 }
 
-GHPQ_Cell* GHP_Queue::pop()
+GeBFGS_Node* GHP_Queue::pop()
 {
-    cout << "Popping..." << endl;
     if (isEmpty()) { cout << "ERROR: Queue Empty" << endl; return NULL; }
     q_memory_tail = q_front;
     if (q_front->m_next != NULL) q_front = q_front->m_next;
-    return q_memory_tail;
+    return q_memory_tail->m_node;
 }
