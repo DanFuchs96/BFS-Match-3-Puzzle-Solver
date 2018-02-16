@@ -15,6 +15,7 @@
 #include "coordpair.h"
 #include "mmpuzzle.h"
 #include "gebfgs_node.h"
+#include "ghp_queue.h"
 using namespace std;
 
 
@@ -48,8 +49,29 @@ struct Problem //Stores data relevant to representing the problem
 ///GREEDY BEST FIRST GRAPH SEARCH ALGORITHM///
 /////////////////////////////////////////////
 
-Solution GeBFGS_Algorithm(Problem & info);
-
+//Solution GeBFGS_Algorithm(Problem & info);
+void STATE(GHP_Queue & SHADOW)
+{
+    cout << "QUEUE POINT: " << SHADOW.q_front << " " << SHADOW.q_memory_tail << " " << SHADOW.q_memory_head << endl;
+    GHPQ_Cell* reader = SHADOW.q_memory_head;
+    if(reader == NULL)
+    {
+        cout << "Queue is unused." << endl;
+    }
+    else
+    {
+        bool hasReachedLive = (reader != SHADOW.q_memory_tail && reader == SHADOW.q_front);
+        hasReachedLive = (hasReachedLive || SHADOW.q_memory_tail == NULL);
+        cout << "QUEUE CELLS: ";
+        while(reader != NULL)
+        {
+            if(hasReachedLive) cout << "L"; else cout << "D";
+            if (reader == SHADOW.q_memory_tail && !hasReachedLive) hasReachedLive = true;
+            reader = reader->m_next;
+        }
+        cout << endl;
+    }
+}
 
 
 ///////////////////
@@ -100,7 +122,29 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     // INITIALIZE PUZZLE
     MMPuzzle puzzle_grid(board_width, board_height, pool_height, part_types);
     puzzle_grid.setBoard(initial_state);
-
+    GeBFGS_Node* x1 = new GeBFGS_Node(quota, puzzle_grid);
+    GeBFGS_Node* x2 = new GeBFGS_Node(quota, puzzle_grid);
+    GeBFGS_Node* x3 = new GeBFGS_Node(quota, puzzle_grid);
+    GeBFGS_Node* x4 = new GeBFGS_Node(quota, puzzle_grid);
+    GeBFGS_Node* x5 = new GeBFGS_Node(quota, puzzle_grid);
+    GeBFGS_Node* x6 = new GeBFGS_Node(quota, puzzle_grid);
+    GeBFGS_Node* x7 = new GeBFGS_Node(quota, puzzle_grid);
+    GHP_Queue SHADOW; STATE(SHADOW);
+    SHADOW.insert(x1); STATE(SHADOW);
+    SHADOW.insert(x2); STATE(SHADOW);
+    SHADOW.insert(x3); STATE(SHADOW);
+    SHADOW.insert(x4); STATE(SHADOW);
+    SHADOW.insert(x5); STATE(SHADOW);
+    SHADOW.pop(); STATE(SHADOW);
+    SHADOW.pop(); STATE(SHADOW);
+    SHADOW.pop(); STATE(SHADOW);
+    SHADOW.pop(); STATE(SHADOW);
+    SHADOW.insert(x6); STATE(SHADOW);
+    SHADOW.pop(); STATE(SHADOW);
+    SHADOW.pop(); STATE(SHADOW);
+    SHADOW.insert(x7); STATE(SHADOW);
+    SHADOW.clear(); STATE(SHADOW);
+/*
     // FORMULATE PROBLEM
     Problem scenario;
     scenario.puzzle = puzzle_grid;
@@ -136,6 +180,6 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     }
     else cout << "This puzzle has no solution." << endl;
     cout << result.runtime << endl; //Display execution time
-
+*/
     return 0;
 }

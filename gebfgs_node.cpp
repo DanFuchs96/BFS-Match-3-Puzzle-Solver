@@ -20,7 +20,7 @@ GeBFGS_Node::GeBFGS_Node(int max_score, MMPuzzle & initial_state)
     m_prev_action = temp;
     m_parent = NULL;
     m_pathcost = 0;
-    m_heuristic = 0;
+    m_heuristic = getHeuristic();//////////////////////deBUG
     goal_score = max_score;
 }
 
@@ -37,7 +37,8 @@ GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
 //Heuristic Function
 int GeBFGS_Node::getHeuristic()
 {
-    return 0;
+    int x; cin >> x;
+    return x;
 }
 
 //GOAL Function

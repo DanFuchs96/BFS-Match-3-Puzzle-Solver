@@ -36,12 +36,12 @@ public:
 
 class GHP_Queue
 {
-private:
+public:
     GHPQ_Cell* q_front;
     GHPQ_Cell* q_memory_head;
     GHPQ_Cell* q_memory_tail;
 
-public:
+//public:
     GHP_Queue(): q_front(NULL), q_memory_head(NULL), q_memory_tail(NULL) {};
     ~GHP_Queue() { clear(); };
     bool isEmpty() { return (q_front == NULL || q_front == q_memory_tail); }
