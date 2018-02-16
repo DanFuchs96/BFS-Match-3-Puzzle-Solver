@@ -9,11 +9,11 @@
 #include <iostream>
 #include <vector>
 #include "coordpair.h"
-#include "dlts_node.h"
+#include "gebfgs_node.h"
 using namespace std;
 
 //Constructor
-DLTS_Node::DLTS_Node(int max_score, MMPuzzle & initial_state)
+GeBFGS_Node::GeBFGS_Node(int max_score, MMPuzzle & initial_state)
 {
     CoordPair temp(-1,-1,-1,-1);
     m_state = initial_state;
@@ -24,39 +24,29 @@ DLTS_Node::DLTS_Node(int max_score, MMPuzzle & initial_state)
 }
 
 //Copy Constructor
-DLTS_Node::DLTS_Node(const DLTS_Node & rhs)
+GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
 {
     m_state = rhs.m_state;
     m_prev_action = rhs.m_prev_action;
     m_parent = rhs.m_parent;
     m_pathcost = rhs.m_pathcost;
     goal_score = rhs.goal_score;
-    //The children vector is not copied over.
-}
-
-//Destructor
-DLTS_Node::~DLTS_Node()
-{
-    for(int i = (int)m_children.size() - 1; i >= 0; i--)
-    {
-        delete m_children[i];
-    }
 }
 
 //GOAL Function
-bool DLTS_Node::GOAL()
+bool GeBFGS_Node::GOAL()
 {
     return (m_state.getScore() >= goal_score);
 }
 
 //ACTIONS Function
-vector<CoordPair> DLTS_Node::ACTIONS()
+vector<CoordPair> GeBFGS_Node::ACTIONS()
 {
     return m_state.validMoves();
 }
 
 //Child Constructor
-DLTS_Node::DLTS_Node(DLTS_Node & parent, CoordPair & action)
+GeBFGS_Node::GeBFGS_Node(GeBFGS_Node & parent, CoordPair & action)
 {
     m_state = parent.m_state;
     m_state.swap(action);
@@ -65,5 +55,4 @@ DLTS_Node::DLTS_Node(DLTS_Node & parent, CoordPair & action)
     m_parent = &parent;
     m_pathcost = parent.m_pathcost + 1;
     goal_score = parent.goal_score;
-    parent.m_children.push_back(this);
 }
