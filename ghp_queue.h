@@ -22,7 +22,7 @@ public:
     GHPQ_Cell* m_next;
 
     GHPQ_Cell(): m_node(NULL), m_next(NULL) {};     //Default Constructor
-    ~GHPQ_Cell() { delete m_node; delete m_next; }; //Destructor
+    ~GHPQ_Cell() { delete m_node; }; //Destructor; Note that successive deletion handled externally
 
     //Insertion Constructor; automatically inserts to tail of existing cell
     GHPQ_Cell(GHPQ_Cell* & predecessor, GeBFGS_Node* & node)

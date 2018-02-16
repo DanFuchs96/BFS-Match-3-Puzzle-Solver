@@ -16,8 +16,14 @@ void GHP_Queue::clear()
 {
     if (q_memory_head != NULL)
     {
-        delete q_memory_head;
-        q_memory_head = NULL;
+        GHPQ_Cell* temp = q_memory_head;
+        while(temp != NULL)
+        {
+            temp = q_memory_head->m_next;
+            q_memory_head->m_next = NULL;
+            delete q_memory_head;
+            q_memory_head = temp;
+        }
         q_memory_tail = NULL;
         q_front = NULL;
     }

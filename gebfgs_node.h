@@ -21,7 +21,8 @@ using namespace std;
 class GeBFGS_Node
 {
 private:
-    int goal_score; //Score threshold to be reached
+    int m_goal_score; //Score threshold to be reached
+    int m_swap_limit; //Maximum number of allowed swaps
 
 public:
     MMPuzzle m_state;              //Current instance of the puzzle grid
@@ -30,7 +31,7 @@ public:
     int m_pathcost;                //Number of swaps performed leading up to this state
     int m_heuristic;               //Stores heuristic value
 
-    GeBFGS_Node(int max_score, MMPuzzle & initial_state); //Constructor
+    GeBFGS_Node(int max_score, int max_swaps, MMPuzzle & initial_state); //Constructor
     GeBFGS_Node(const GeBFGS_Node & rhs);                 //Copy Constructor
 
     int getHeuristic();          //Heuristic Function; returns the heuristic value of the current state

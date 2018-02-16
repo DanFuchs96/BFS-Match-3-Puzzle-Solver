@@ -84,7 +84,7 @@ Solution GeBFGS_Algorithm(Problem & info)
     // TREE-STRUCTURE SETUP
     t_time = clock();      //Algorithm-relevant declarations begin, so timer starts
     GeBFGS_Node* rootnode; //Store root node
-    rootnode = new GeBFGS_Node(info.goal_score, info.puzzle); //Create root node for tree structure
+    rootnode = new GeBFGS_Node(info.goal_score, info.swap_limit, info.puzzle); //Create root node for tree structure
 
     // FRONTIER INITIALIZATION
     GHP_Queue FRONTIER;        //Priority Queue, stores pointers to all nodes in the frontier
@@ -135,14 +135,14 @@ Solution GeBFGS_Algorithm(Problem & info)
             current_node = current_node->m_parent;
         }
     }
-    STATE(FRONTIER);
+    //STATE(FRONTIER); cout << "Output complete" << endl;
     return results;
 }
 
 //TODO
 //Need to clean up functions, STATE needs to get cut, look for various debugging messages.
 //Heuristic needs to be changed. Double queue / merge need to be used / implemented.
-//Tons of commenting, too.
+//Tons of commenting, too. Also, implement proper UCS.
 
 
 ///////////////////
