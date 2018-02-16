@@ -135,10 +135,14 @@ Solution GeBFGS_Algorithm(Problem & info)
             current_node = current_node->m_parent;
         }
     }
-    //STATE(FRONTIER);
+    STATE(FRONTIER);
     return results;
 }
 
+//TODO
+//Need to clean up functions, STATE needs to get cut, look for various debugging messages.
+//Heuristic needs to be changed. Double queue / merge need to be used / implemented.
+//Tons of commenting, too.
 
 
 ///////////////////

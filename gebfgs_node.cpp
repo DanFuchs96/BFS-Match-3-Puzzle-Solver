@@ -38,8 +38,12 @@ GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
 int GeBFGS_Node::getHeuristic()
 {
     int remaining_score = goal_score - m_state.getScore();
+    int remaining_moves = 17 - m_pathcost;
+    int projected_score = remaining_moves*10;
     //return remaining_score;
-    return remaining_score*((m_pathcost+70));
+    //return remaining_score*((m_pathcost+70));
+    return remaining_score - projected_score;
+    ///rem_score - (rem_moves * 10) did pretty well
 }
 
 //GOAL Function
