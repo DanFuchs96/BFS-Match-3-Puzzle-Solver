@@ -27,7 +27,7 @@ using namespace std;
 
 
 //////////////////////////////////
-///PROBLEM-ABSTRACTION OBJECTS///
+///PROBLEM-ABSTRACTION STRUCTS///
 ////////////////////////////////
 
 struct Solution //Stores data relevant to tracking the solution
@@ -50,35 +50,11 @@ struct Problem //Stores data relevant to representing the problem
 ///GREEDY BEST FIRST GRAPH SEARCH ALGORITHM///
 /////////////////////////////////////////////
 
-void STATE(GHP_Queue & SHADOW)
-{
-    cout << "QUEUE POINT: " << SHADOW.q_front << " " << SHADOW.q_memory_tail << " " << SHADOW.q_memory_head << endl;
-    GHPQ_Cell* reader = SHADOW.q_memory_head;
-    if(reader == NULL)
-    {
-        cout << "Queue is unused." << endl;
-    }
-    else
-    {
-        bool hasReachedLive = (reader != SHADOW.q_memory_tail && reader == SHADOW.q_front);
-        hasReachedLive = (hasReachedLive || SHADOW.q_memory_tail == NULL);
-        cout << "QUEUE CELLS: ";
-        while(reader != NULL)
-        {
-            if(hasReachedLive) cout << "L"; else cout << "D";
-            if (reader == SHADOW.q_memory_tail && !hasReachedLive) hasReachedLive = true;
-            cout << reader->m_node->m_heuristic << " ";
-            reader = reader->m_next;
-        }
-        cout << endl;
-    }
-}
-
 Solution GeBFGS_Algorithm(Problem & info)
 {
     // SOLUTION SETUP
-    Solution results;              //Stores results
-    results.success = false;       //Tracks if solution has yet been found
+    Solution results;        //Stores results
+    results.success = false; //Tracks if solution has yet been found
     clock_t t_time;          //Stores start and end time
 
     // TREE-STRUCTURE SETUP
@@ -86,24 +62,28 @@ Solution GeBFGS_Algorithm(Problem & info)
     GeBFGS_Node* rootnode; //Store root node
     rootnode = new GeBFGS_Node(info.goal_score, info.swap_limit, info.puzzle); //Create root node for tree structure
 
-    // FRONTIER INITIALIZATION
-    GHP_Queue FRONTIER;        //Priority Queue, stores pointers to all nodes in the frontier
-    GHP_Queue SUCCESSORS;      //Priority Queue, sorts intermediate child nodes
+    // FRONTIER / EXPLORED / SUCCESSORS INITIALIZATION
+    GHP_Queue FRONTIER;        //Priority Queue, stores pointers to frontier nodes, also contains EXPLORED partition
+    GHP_Queue SUCCESSORS;      //Priority Queue, stores and sorts intermediate child nodes
     FRONTIER.insert(rootnode); //Add root, or the initial state, to the frontier
     GeBFGS_Node* current_node; //Pointer used to track frontier node being evaluated
     GeBFGS_Node* child_node;   //Pointer used to store newly-created children
+    //The GHP_Queue is a special Priority Queue I designed to support an internal EXPLORED queue. In addition, it
+    //designed specifically to operate with GeBFGS, and has many additions that allow it to operate very quickly.
+    //Please refer to "qhp_queue.h" for more details.
 
     // ACTION-RELATED DECLARATIONS
     vector<CoordPair> action_list; //Stores list of available actions to a particular node
     int num_possible_moves = 0;    //Stores number of available actions to a particular node
     CoordPair selected_action;     //Stores action currently being evaluated
 
-    // BEGIN BFTS EXECUTION
+
+    // BEGIN GeBFGS EXECUTION
     if(FRONTIER.q_front->m_node->GOAL()) results.success = true; //Check if root state is a goal state
     while(!results.success && !FRONTIER.isEmpty())               //While goal state not found and frontier is nonempty
     {
-        current_node = FRONTIER.pop();
-        if(current_node->GOAL())
+        current_node = FRONTIER.pop(); //Select node for exploration, add to EXPLORED
+        if(current_node->GOAL()) //Check for goal state
         {
             results.success = true;
         }
@@ -115,13 +95,16 @@ Solution GeBFGS_Algorithm(Problem & info)
             {
                 selected_action = action_list[i];
                 child_node = new GeBFGS_Node(*current_node, selected_action); //Create new child amd execute swap
-                SUCCESSORS.insert(child_node);
+                SUCCESSORS.insert(child_node);                                //Sort with incoming children
             }
-            FRONTIER.merge(SUCCESSORS); //Drain SUCCESSORS into FRONTIER
+            FRONTIER.merge_UNEXPLORED(SUCCESSORS); //Drain SUCCESSORS into FRONTIER, rejecting any EXPLORED nodes
+            //Note that this function empties SUCCESSORS. By sorting all children and inserting them at the same
+            //time, we can greatly reduce the time complexity of inserting into FRONTIER. As the FRONTIER grows
+            //larger, the effective time saved becomes greater.
         }
     }
-    t_time = clock() - t_time; //Execution Complete, mark finish time
-    results.runtime = static_cast<float>(t_time) / CLOCKS_PER_SEC;
+    t_time = clock() - t_time;                                     //Execution Complete, mark finish time
+    results.runtime = static_cast<float>(t_time) / CLOCKS_PER_SEC; //Compute runtime in seconds
 
 
     // STORE SOLUTION PATH
@@ -133,14 +116,9 @@ Solution GeBFGS_Algorithm(Problem & info)
             current_node = current_node->m_parent;
         }
     }
-    //STATE(FRONTIER); cout << "Output complete" << endl;
     return results;
 }
 
-//TODO
-//Clean up comments, cut out STATE, make everything nice and tidy.
-//Ensure that is actually using a base UCS.
-//Need to implement EXPLORED somehow.
 
 
 ///////////////////
@@ -164,8 +142,8 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
 
     // OPEN INPUT FILE
     fin.open(filename.c_str());
-    if(argc != 2) { cout << "Error, please supply a file." << endl; exit(1); }
-    if(!fin) { cout << "Error, file not found." << endl; exit(1);}
+    if(argc != 2) { cerr << "Error, please supply a file." << endl; exit(1); }
+    if(!fin) { cerr << "Error, file not found." << endl; exit(1);}
 
     // READ FILE
     fin >> quota;
@@ -198,8 +176,8 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     scenario.goal_score = quota;
     scenario.swap_limit = max_swaps;
 
-    // EXECUTE ID-DFTS ALGORITHM
-    Solution result = GeBFGS_Algorithm(scenario); //Executes ID-DFTS Algorithm, storing outcome
+    // EXECUTE GeBFGS ALGORITHM
+    Solution result = GeBFGS_Algorithm(scenario); //Executes GeBFGS Algorithm, storing outcome
 
     // OUTPUT FILE GENERATION
     cout << quota << endl;

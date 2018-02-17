@@ -80,7 +80,7 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
     }
 }
 
-void GHP_Queue::merge(GHP_Queue & incoming_queue)
+void GHP_Queue::merge_UNEXPLORED(GHP_Queue &incoming_queue)
 {
     if(incoming_queue.isEmpty()) return;
     GeBFGS_Node* node;

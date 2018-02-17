@@ -45,7 +45,7 @@ int GeBFGS_Node::getHeuristic()
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// > HEURISTIC DOCUMENTATION ///
     ////////////////////////////////
-    ///This heuristic tracks compares the c3    qurrent node's anticipated score and actual attained scores.
+    ///This heuristic tracks compares the current node's anticipated score and actual attained scores.
     ///
     /// m_goal_score / m_swap_limit     => (ex_swap_val) : Expected points gained per swap
     /// ex_swap_val * m_pathcost        => (ant_score)   : Anticipated amount of points gained
@@ -59,12 +59,15 @@ int GeBFGS_Node::getHeuristic()
     /// - The (accuracy_offset) can be increased arbitrarily to sacrifice execution time
     ///   for greater accuracy.
     /// - Additionally, (m_pathcost) is subtracted from this result for two reasons:
-    ///    - 1) To help serve as a tiebreaker, between nodes of similar states.
-    ///    - 2) To give preferential evaluation to nodes that are nearly complete.
+    ///    - 1) Greater path cost generally implies being closer to a goal node
+    ///    - 2) To help serve as a tiebreaker, between nodes of similar states; this also simplifies
+    ///         the GHP_Queue's merging function, since states that are identical except for path cost
+    ///         will always have their best version added to EXPLORED first, so any rejected duplicates
+    ///         will always be suboptimal.
     ///
-    ///This heuristic value can be linearly transformed into an "expected number of swaps needed to reach goal".
-    ///However, for the sake of improving runtime, this has been omitted, since it does not change the order
-    ///in which nodes are sorted.
+    ///This heuristic value can be linearly transformed into an "expected number of swaps needed to reach goal",
+    ///which fits the heuristic role of "approximating distance from a goal"; however, for the sake of improving
+    ///runtime, this has been omitted, since it does not change the order in which nodes are sorted.
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 

@@ -1,6 +1,7 @@
 <component name="ProjectDictionaryState">
   <dictionary name="Exper">
     <words>
+      <w>bfgs</w>
       <w>bfts</w>
       <w>coordpair</w>
       <w>dfts</w>
@@ -10,6 +11,7 @@
       <w>heur</w>
       <w>pathcost</w>
       <w>postconditions</w>
+      <w>rootnode</w>
     </words>
   </dictionary>
 </component>

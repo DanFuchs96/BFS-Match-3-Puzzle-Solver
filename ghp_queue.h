@@ -22,7 +22,7 @@ public:
     GHPQ_Cell* m_next;
 
     GHPQ_Cell(): m_node(NULL), m_next(NULL) {};     //Default Constructor
-    ~GHPQ_Cell() { }; //Destructor; All deletion handled externally
+    ~GHPQ_Cell() { }; //Destructor; Note that all deletion is handled externally by the GHP Queue
 
     //Insertion Constructor; automatically inserts to tail of existing cell
     GHPQ_Cell(GHPQ_Cell* & predecessor, GeBFGS_Node* & node)
@@ -47,7 +47,7 @@ public:
     bool isEmpty() { return (q_front == NULL || q_front == q_memory_tail); }
     void clear();
     void insert(GeBFGS_Node* & node);
-    void merge(GHP_Queue & incoming_queue);
+    void merge_UNEXPLORED(GHP_Queue &incoming_queue);
     GeBFGS_Node* pop();
 };
 

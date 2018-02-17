@@ -15,9 +15,8 @@ using namespace std;
 #ifndef GEBFGS_NODE_H
 #define GEBFGS_NODE_H
 
-//This class is used to represent each node of the DLTS Tree. They contain all information relevant to storing the
-//  results of any particular swap. Dynamically created children are stored in the children vector, and cleanup is
-//  handled by the destructor.
+//This class is used to represent each node of the GeBFGS Tree. They contain all information relevant to storing the
+//  results of any particular swap.
 class GeBFGS_Node
 {
 private:
@@ -32,7 +31,7 @@ public:
     int m_heuristic;               //Stores heuristic value
 
     GeBFGS_Node(int max_score, int max_swaps, MMPuzzle & initial_state); //Constructor
-    GeBFGS_Node(const GeBFGS_Node & rhs);                 //Copy Constructor
+    GeBFGS_Node(const GeBFGS_Node & rhs);                                //Copy Constructor
 
     int getHeuristic();          //Heuristic Function; returns the heuristic value of the current state
     bool GOAL();                 //GOAL Function; returns true if score was reached, false otherwise.
@@ -40,8 +39,7 @@ public:
 
     //DESCRIPTION: Child Constructor. This constructor copies an existing node, and then applies the specified action
     //  to that copy. This copy is denoted as a child of the passed node. The specified action becomes stored in
-    //  m_prev_action, m_parent is set to the original node, and m_pathcost increments. The parent inserts the child's
-    //  address into the parent's children vector.
+    //  m_prev_action, m_parent is set to the original node, and m_pathcost increments. New heuristic calculated.
     //PRECONDITIONS: Action must be valid for parent's state. Can be verified with parent->m_state.checkSwap(action).
     //POSTCONDITIONS: New child node is created with passed node being identified as it's parent.
     GeBFGS_Node(GeBFGS_Node & parent, CoordPair & action);
