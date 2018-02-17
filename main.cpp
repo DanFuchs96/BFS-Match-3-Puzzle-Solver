@@ -138,9 +138,9 @@ Solution GeBFGS_Algorithm(Problem & info)
 }
 
 //TODO
-//Need to clean up functions, STATE needs to get cut, look for various debugging messages.
-//Heuristic needs to be changed. Double queue / merge need to be used / implemented.
-//Tons of commenting, too. Also, implement proper UCS.
+//Clean up comments, cut out STATE, make everything nice and tidy.
+//Ensure that is actually using a base UCS.
+//Need to implement EXPLORED somehow.
 
 
 ///////////////////

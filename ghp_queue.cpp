@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include "coordpair.h"
 #include "gebfgs_node.h"
 #include "ghp_queue.h"
 using namespace std;
@@ -21,6 +20,7 @@ void GHP_Queue::clear()
         {
             temp = q_memory_head->m_next;
             q_memory_head->m_next = NULL;
+            delete q_memory_head->m_node;
             delete q_memory_head;
             q_memory_head = temp;
         }
@@ -84,10 +84,20 @@ void GHP_Queue::merge(GHP_Queue & incoming_queue)
 {
     if(incoming_queue.isEmpty()) return;
     GeBFGS_Node* node;
+    GHPQ_Cell* emptied_cell;
     if(isEmpty()) //If FRONTIER is empty, allow insert() to handle front insert
     {
+        emptied_cell = incoming_queue.q_front;
         node = incoming_queue.pop();
         insert(node);
+        delete emptied_cell;
+    }
+    else if (incoming_queue.q_front->m_node->m_heuristic < q_front->m_node->m_heuristic) //New minimum heuristic value
+    {
+        emptied_cell = incoming_queue.q_front;
+        node = incoming_queue.pop();
+        q_front = new GHPQ_Cell(q_memory_tail, node);
+        delete emptied_cell;
     }
     GHPQ_Cell* target = q_front;
     bool lcv;
@@ -95,7 +105,9 @@ void GHP_Queue::merge(GHP_Queue & incoming_queue)
     while(!incoming_queue.isEmpty())
     {
         //The incoming queue is already sorted, so only back insertions will occur
+        emptied_cell = incoming_queue.q_front;
         node = incoming_queue.pop();
+        delete emptied_cell;
         lcv = true;
         heur_val = node->m_heuristic;
         while (target->m_next != NULL && lcv)
@@ -106,6 +118,7 @@ void GHP_Queue::merge(GHP_Queue & incoming_queue)
         target = new GHPQ_Cell(target, node);
     }
     incoming_queue.q_memory_head = NULL;
+    incoming_queue.q_memory_tail = NULL;
     incoming_queue.q_front = NULL;
 }
 
