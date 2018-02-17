@@ -88,8 +88,7 @@ Solution GeBFGS_Algorithm(Problem & info)
 
     // FRONTIER INITIALIZATION
     GHP_Queue FRONTIER;        //Priority Queue, stores pointers to all nodes in the frontier
-    GHP_Queue SHADOW_LIST;     //Priority Queue, sorts intermediate child nodes
-////you need to actually use this thing
+    GHP_Queue SUCCESSORS;      //Priority Queue, sorts intermediate child nodes
     FRONTIER.insert(rootnode); //Add root, or the initial state, to the frontier
     GeBFGS_Node* current_node; //Pointer used to track frontier node being evaluated
     GeBFGS_Node* child_node;   //Pointer used to store newly-created children
@@ -100,26 +99,25 @@ Solution GeBFGS_Algorithm(Problem & info)
     CoordPair selected_action;     //Stores action currently being evaluated
 
     // BEGIN BFTS EXECUTION
-    if(FRONTIER.q_front->m_node->GOAL()) results.success = true;  //Check if root state is a goal state
-    while(!results.success && !FRONTIER.isEmpty())      //While goal state not found and frontier is nonempty
+    if(FRONTIER.q_front->m_node->GOAL()) results.success = true; //Check if root state is a goal state
+    while(!results.success && !FRONTIER.isEmpty())               //While goal state not found and frontier is nonempty
     {
         current_node = FRONTIER.pop();
-        if(current_node->m_pathcost < info.swap_limit)     //If current node is within reachable number of swaps
+        if(current_node->GOAL())
         {
-            action_list = current_node->ACTIONS();        //Execute ACTIONS(), store valid swaps
-            num_possible_moves = (int)action_list.size(); //Store number of valid swaps
-            for(int i = 0; i < num_possible_moves; i++)   //For each valid swap
+            results.success = true;
+        }
+        else if(current_node->m_pathcost < info.swap_limit) //If current node is within reachable number of swaps
+        {
+            action_list = current_node->ACTIONS();          //Execute ACTIONS(), store valid swaps
+            num_possible_moves = (int)action_list.size();   //Store number of valid swaps
+            for(int i = 0; i < num_possible_moves; i++)     //For each valid swap
             {
                 selected_action = action_list[i];
                 child_node = new GeBFGS_Node(*current_node, selected_action); //Create new child amd execute swap
-                if(child_node->GOAL())
-                {
-                    results.success = true;
-                    current_node = child_node;
-                    i = num_possible_moves; //Causes loop to exit after storing child node
-                }
-                FRONTIER.insert(child_node);
+                SUCCESSORS.insert(child_node);
             }
+            FRONTIER.merge(SUCCESSORS); //Drain SUCCESSORS into FRONTIER
         }
     }
     t_time = clock() - t_time; //Execution Complete, mark finish time

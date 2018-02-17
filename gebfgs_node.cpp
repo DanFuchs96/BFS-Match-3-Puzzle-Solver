@@ -40,7 +40,7 @@ GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
 //Heuristic Function
 int GeBFGS_Node::getHeuristic()
 {
-    const int accuracy_offset = 7; //Fixed Offset; Increase to improve solution optimality
+    const int accuracy_offset = 15; //Fixed Offset; Increase to improve solution optimality
     return (((accuracy_offset + (m_goal_score/m_swap_limit))*m_pathcost) - m_state.getScore()) - m_pathcost;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// > HEURISTIC DOCUMENTATION ///

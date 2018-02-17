@@ -51,7 +51,7 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
         }
         else if (heur_val < q_front->m_node->m_heuristic) //If new minimum heuristic found, front insert
         {
-            if (q_memory_tail == NULL)               //If there is no dead memory
+            if (q_memory_tail == NULL)                    //If there is no dead memory
             {
                 cell = new GHPQ_Cell();
                 cell->m_node = node;
@@ -78,6 +78,35 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
             return;
         }
     }
+}
+
+void GHP_Queue::merge(GHP_Queue & incoming_queue)
+{
+    if(incoming_queue.isEmpty()) return;
+    GeBFGS_Node* node;
+    if(isEmpty()) //If FRONTIER is empty, allow insert() to handle front insert
+    {
+        node = incoming_queue.pop();
+        insert(node);
+    }
+    GHPQ_Cell* target = q_front;
+    bool lcv;
+    int heur_val;
+    while(!incoming_queue.isEmpty())
+    {
+        //The incoming queue is already sorted, so only back insertions will occur
+        node = incoming_queue.pop();
+        lcv = true;
+        heur_val = node->m_heuristic;
+        while (target->m_next != NULL && lcv)
+        {
+            if (heur_val < target->m_next->m_node->m_heuristic) lcv = false;
+            else target = target->m_next;
+        }
+        target = new GHPQ_Cell(target, node);
+    }
+    incoming_queue.q_memory_head = NULL;
+    incoming_queue.q_front = NULL;
 }
 
 GeBFGS_Node* GHP_Queue::pop()

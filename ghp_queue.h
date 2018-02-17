@@ -47,7 +47,7 @@ public:
     bool isEmpty() { return (q_front == NULL || q_front == q_memory_tail); }
     void clear();
     void insert(GeBFGS_Node* & node);
-    //void merge(GHP_Queue & incoming_queue);
+    void merge(GHP_Queue & incoming_queue);
     GeBFGS_Node* pop();
 };
 
