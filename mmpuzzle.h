@@ -22,13 +22,12 @@ using namespace std;
 class MMPuzzle
 {
 private:
-    vector< vector<int> > m_board;      //Stores entire puzzle grid (pool region + game-space)
-    vector< vector<bool> > m_rmv_flags; //Used to mark parts for removal
     int m_score;        //Stores number of parts removed ("matched")
     int m_width;        //Width of the grid
     int m_height;       //Height of the grid
     int m_pool;         //Height of the pool
     int m_num_types;    //Number of distinct part types
+    vector< vector<bool> > m_rmv_flags; //Used to mark parts for removal
 
     void drawDivider(); //Outputs dividing line to screen; length is based on m_width.
     void fall();        //Settle all floating parts to bottom of board, replacing parts as necessary.
@@ -36,6 +35,8 @@ private:
     bool checkSwap(int x1, int y1, int x2, int y2); //Returns true if swap is valid, false otherwise.
 
 public:
+    vector< vector<int> > m_board;      //Stores entire puzzle grid (pool region + game-space)
+
     MMPuzzle();                                                 //Default Constructor - Creates Minimal Gameboard
     MMPuzzle(int width, int height, int pool, int num_types);   //Explicit Constructor
     MMPuzzle(const MMPuzzle & rhs);                             //Copy Constructor

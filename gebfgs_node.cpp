@@ -40,7 +40,10 @@ GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
 //Heuristic Function
 int GeBFGS_Node::getHeuristic()
 {
-    const int accuracy_offset = 8; //Fixed Offset; Increase to improve solution optimality
+    const int accuracy_offset = 7; //Fixed Offset; Increase to improve solution optimality
+    //Accuracy levels of 7 and lower can solve puzzle 4 relatively quickly.
+    //Accuracy levels of 16 and higher are sufficient to find optimal solutions for most easy puzzles.
+
     return (((accuracy_offset + (m_goal_score/m_swap_limit))*m_pathcost) - m_state.getScore()) - m_pathcost;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// > HEURISTIC DOCUMENTATION ///

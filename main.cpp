@@ -70,7 +70,8 @@ Solution GeBFGS_Algorithm(Problem & info)
     GeBFGS_Node* child_node;   //Pointer used to store newly-created children
     //The GHP_Queue is a special Priority Queue I designed to support an internal EXPLORED queue. In addition, it
     //designed specifically to operate with GeBFGS, and has many additions that allow it to operate very quickly.
-    //Please refer to "qhp_queue.h" for more details.
+    //Please refer to "qhp_queue.h" for functionality info, and refer to (main.cpp:105) for an explanation as to
+    //how using two of these queues simplifies exploration and speed up execution time.
 
     // ACTION-RELATED DECLARATIONS
     vector<CoordPair> action_list; //Stores list of available actions to a particular node
@@ -95,9 +96,27 @@ Solution GeBFGS_Algorithm(Problem & info)
             {
                 selected_action = action_list[i];
                 child_node = new GeBFGS_Node(*current_node, selected_action); //Create new child amd execute swap
-                SUCCESSORS.insert(child_node);                                //Sort with incoming children
+                if (SUCCESSORS.contains(child_node) || FRONTIER.contains(child_node)) delete child_node;
+                else SUCCESSORS.insert(child_node); //If child not in EXPLORED, then store as a SUCCESSOR
+                //Since EXPLORED is a partition stored in FRONTIER, checking for the child_node being in FRONTIER
+                //ensures that the new child has not already been EXPLORED, nor has it been scheduled to be
+                //explored. Likewise, checking SUCCESSORS ensures no duplicate states will be added.
+
+                // > Proof of Exploration Functionality (main.cpp:105)
+                //Now, it is worth noting that no state can ever be "improved". The reason for this twofold:
+                //First, at any given iteration, all incoming children in SUCCESSORS will have the same path cost,
+                //so no state can improve a "duplicate". So, SUCCESSORS will never add redundant states to FRONTIER.
+                //Second, since the heuristic that guides expansion values lower path costs, any nodes that contain
+                //the same board and current score but have different path costs will have their cheapest variant
+                //explored first. Thus, suboptimal duplicates will appear in different iterations, but will never
+                //be added since the cheapest variant was already marked as explored. Therefore, once a node reaches
+                //the frontier, it cannot be improved; that is, there is no sequence of moves to that state such
+                //that the path cost would be lower. This also means for that for checking node equality, we only
+                //need to compare board states and their current score, since path-cost variance will either be zero,
+                //or the incoming node will have a worse path-cost; in both cases that incoming node would be
+                //thrown out.
             }
-            FRONTIER.merge_UNEXPLORED(SUCCESSORS); //Drain SUCCESSORS into FRONTIER, rejecting any EXPLORED nodes
+            FRONTIER.merge(SUCCESSORS); //Drain SUCCESSORS into FRONTIER
             //Note that this function empties SUCCESSORS. By sorting all children and inserting them at the same
             //time, we can greatly reduce the time complexity of inserting into FRONTIER. As the FRONTIER grows
             //larger, the effective time saved becomes greater.
@@ -105,7 +124,6 @@ Solution GeBFGS_Algorithm(Problem & info)
     }
     t_time = clock() - t_time;                                     //Execution Complete, mark finish time
     results.runtime = static_cast<float>(t_time) / CLOCKS_PER_SEC; //Compute runtime in seconds
-
 
     // STORE SOLUTION PATH
     if(results.success)
@@ -205,6 +223,5 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     }
     else cout << "This puzzle has no solution." << endl;
     cout << result.runtime << endl; //Display execution time
-cout << "Swaps: " << result.move_sequence.size() << endl;
     return 0;
 }
