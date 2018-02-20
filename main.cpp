@@ -3,7 +3,7 @@
 /// CLASS/SECT: CS5400A - ARTIFICIAL INTELLIGENCE
 /// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 3
 /// DATE: 2/15/18
-/// DESC: Main file. Implements GeBFGS Algorithm and applies it solve an instance of the Match-3
+/// DESC: Main file. Implements GrBeFGS Algorithm and applies it solve an instance of the Match-3
 ///       based "Mechanical Matching Puzzle". Takes a puzzle instance file as input, outputs the
 ///       file and a sequence of valid moves that lead to solution, or specifies no solution.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,14 +15,14 @@
 #include <ctime>
 #include "coordpair.h"
 #include "mmpuzzle.h"
-#include "gebfgs_node.h"
+#include "grbefgs_node.h"
 #include "ghp_queue.h"
 using namespace std;
 
 
 /// TABLE OF CONTENTS
 /// 1) PROBLEM-ABSTRACTION STRUCTS
-/// 2) GeBFGS ALGORITHM
+/// 2) GrBeFGS ALGORITHM
 /// 3) MAIN PROGRAM
 
 
@@ -50,7 +50,7 @@ struct Problem //Stores data relevant to representing the problem
 ///GREEDY BEST FIRST GRAPH SEARCH ALGORITHM///
 /////////////////////////////////////////////
 
-Solution GeBFGS_Algorithm(Problem & info)
+Solution GrBeFGS_Algorithm(Problem & info)
 {
     // SOLUTION SETUP
     Solution results;        //Stores results
@@ -59,17 +59,17 @@ Solution GeBFGS_Algorithm(Problem & info)
 
     // TREE-STRUCTURE SETUP
     t_time = clock();      //Algorithm-relevant declarations begin, so timer starts
-    GeBFGS_Node* rootnode; //Store root node
-    rootnode = new GeBFGS_Node(info.goal_score, info.swap_limit, info.puzzle); //Create root node for tree structure
+    GrBeFGS_Node* rootnode; //Store root node
+    rootnode = new GrBeFGS_Node(info.goal_score, info.swap_limit, info.puzzle); //Create root node for tree structure
 
     // FRONTIER / EXPLORED / SUCCESSORS INITIALIZATION
     GHP_Queue FRONTIER;        //Priority Queue, stores pointers to frontier nodes, also contains EXPLORED partition
     GHP_Queue SUCCESSORS;      //Priority Queue, stores and sorts intermediate child nodes
     FRONTIER.insert(rootnode); //Add root, or the initial state, to the frontier
-    GeBFGS_Node* current_node; //Pointer used to track frontier node being evaluated
-    GeBFGS_Node* child_node;   //Pointer used to store newly-created children
+    GrBeFGS_Node* current_node; //Pointer used to track frontier node being evaluated
+    GrBeFGS_Node* child_node;   //Pointer used to store newly-created children
     //The GHP_Queue is a special Priority Queue I designed to support an internal EXPLORED queue. In addition, it
-    //designed specifically to operate with GeBFGS, and has many additions that allow it to operate very quickly.
+    //designed specifically to operate with GrBeFGS, and has many additions that allow it to operate very quickly.
     //Please refer to "qhp_queue.h" for functionality info, and refer to (main.cpp:105) for an explanation as to
     //how using two of these queues simplifies exploration and speed up execution time.
 
@@ -79,7 +79,7 @@ Solution GeBFGS_Algorithm(Problem & info)
     CoordPair selected_action;     //Stores action currently being evaluated
 
 
-    // BEGIN GeBFGS EXECUTION
+    // BEGIN GrBeFGS EXECUTION
     if(FRONTIER.q_front->m_node->GOAL()) results.success = true; //Check if root state is a goal state
     while(!results.success && !FRONTIER.isEmpty())               //While goal state not found and frontier is nonempty
     {
@@ -95,7 +95,7 @@ Solution GeBFGS_Algorithm(Problem & info)
             for(int i = 0; i < num_possible_moves; i++)     //For each valid swap
             {
                 selected_action = action_list[i];
-                child_node = new GeBFGS_Node(*current_node, selected_action); //Create new child amd execute swap
+                child_node = new GrBeFGS_Node(*current_node, selected_action); //Create new child amd execute swap
                 if (SUCCESSORS.contains(child_node) || FRONTIER.contains(child_node)) delete child_node;
                 else SUCCESSORS.insert(child_node); //If child not in EXPLORED, then store as a SUCCESSOR
                 //Since EXPLORED is a partition stored in FRONTIER, checking for the child_node being in FRONTIER
@@ -194,8 +194,8 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     scenario.goal_score = quota;
     scenario.swap_limit = max_swaps;
 
-    // EXECUTE GeBFGS ALGORITHM
-    Solution result = GeBFGS_Algorithm(scenario); //Executes GeBFGS Algorithm, storing outcome
+    // EXECUTE GrBeFGS ALGORITHM
+    Solution result = GrBeFGS_Algorithm(scenario); //Executes GrBeFGS Algorithm, storing outcome
 
     // OUTPUT FILE GENERATION
     cout << quota << endl;

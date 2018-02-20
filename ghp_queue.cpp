@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include "gebfgs_node.h"
+#include "grbefgs_node.h"
 #include "ghp_queue.h"
 using namespace std;
 
@@ -31,7 +31,7 @@ void GHP_Queue::clear()
 }
 
 //Node Insertion Function
-void GHP_Queue::insert(GeBFGS_Node* & node)
+void GHP_Queue::insert(GrBeFGS_Node* & node)
 {
     if (q_memory_head == NULL)     //If no memory is present
     {
@@ -87,10 +87,10 @@ void GHP_Queue::insert(GeBFGS_Node* & node)
 }
 
 //Boolean Search Function
-bool GHP_Queue::contains(GeBFGS_Node* & node)
+bool GHP_Queue::contains(GrBeFGS_Node* & node)
 {
     if(q_memory_head == NULL) return false; //Empty, cannot contain node
-    GeBFGS_Node* target_node;               //Stores node being compared
+    GrBeFGS_Node* target_node;               //Stores node being compared
     for (GHPQ_Cell* target_cell = q_memory_head; target_cell != NULL; target_cell = target_cell->m_next)
     {                                                                   //For loop to iterate across memory
         target_node = target_cell->m_node;                              //Pull node being compared
@@ -119,7 +119,7 @@ bool GHP_Queue::contains(GeBFGS_Node* & node)
 void GHP_Queue::merge(GHP_Queue &incoming_queue)
 {
     if(incoming_queue.isEmpty()) return; //Empty
-    GeBFGS_Node* node;                   //Stores node being transferred to calling queue
+    GrBeFGS_Node* node;                   //Stores node being transferred to calling queue
     GHPQ_Cell* emptied_cell;             //Stores cell to be emptied
 
     // PERFORM FRONT INSERT (Only if calling queue empty, or new heuristic minimum)
@@ -164,7 +164,7 @@ void GHP_Queue::merge(GHP_Queue &incoming_queue)
 }
 
 //Popping Function
-GeBFGS_Node* GHP_Queue::pop()
+GrBeFGS_Node* GHP_Queue::pop()
 {
     if (isEmpty()) { cerr << "ERROR: Queue Empty" << endl; return NULL; }
     q_memory_tail = q_front;                                //Add head of front partition to tail of rear partition

@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 #include "coordpair.h"
-#include "gebfgs_node.h"
+#include "grbefgs_node.h"
 using namespace std;
 
 #ifndef GHP_QUEUE_H
@@ -55,7 +55,7 @@ using namespace std;
 class GHPQ_Cell //Component class of GHP_Queue; used to store GeBFGS nodes
 {
 public:
-    GeBFGS_Node* m_node; //Node to be stored
+    GrBeFGS_Node* m_node; //Node to be stored
     GHPQ_Cell* m_next;   //Pointer to next cell
 
     GHPQ_Cell(): m_node(NULL), m_next(NULL) {}; //Default Constructor
@@ -67,7 +67,7 @@ public:
     //PRECONDITIONS: None.
     //POSTCONDITIONS: Predecessor "tail", or following cell, is now set to newly constructed cell. Newly constructed
     //  cell stores passed node, and marks the node that followed predecessor as following itself instead.
-    GHPQ_Cell(GHPQ_Cell* & predecessor, GeBFGS_Node* & node)
+    GHPQ_Cell(GHPQ_Cell* & predecessor, GrBeFGS_Node* & node)
     {
         m_next = predecessor->m_next; //Mark predecessor's tail as own
         predecessor->m_next = this;   //Addend self as predecessor's tail
@@ -87,10 +87,10 @@ public:
     ~GHP_Queue() { clear(); };                                                //Destructor, calls clear()
     bool isEmpty() { return (q_front == NULL || q_front == q_memory_tail); }  //Returns true if empty; else false
     void clear();                          //Clearing Function; empties queue
-    void insert(GeBFGS_Node* & node);      //Insertion Function; inserts node into front partition
-    bool contains(GeBFGS_Node* & node);    //Boolean Search Function; Returns true if node found; false otherwise
+    void insert(GrBeFGS_Node* & node);      //Insertion Function; inserts node into front partition
+    bool contains(GrBeFGS_Node* & node);    //Boolean Search Function; Returns true if node found; false otherwise
     void merge(GHP_Queue &incoming_queue); //Merging Function; Empties and sorts incoming queue into calling queue
-    GeBFGS_Node* pop();                    //Popping function; Pops a cell, adjusts partitions, returns stored node
+    GrBeFGS_Node* pop();                    //Popping function; Pops a cell, adjusts partitions, returns stored node
 };
 
 

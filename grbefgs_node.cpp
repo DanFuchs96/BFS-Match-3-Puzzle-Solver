@@ -9,11 +9,11 @@
 #include <iostream>
 #include <vector>
 #include "coordpair.h"
-#include "gebfgs_node.h"
+#include "grbefgs_node.h"
 using namespace std;
 
 //Constructor
-GeBFGS_Node::GeBFGS_Node(int max_score, int max_swaps, MMPuzzle & initial_state)
+GrBeFGS_Node::GrBeFGS_Node(int max_score, int max_swaps, MMPuzzle & initial_state)
 {
     CoordPair temp(-1,-1,-1,-1);
     m_state = initial_state;
@@ -26,7 +26,7 @@ GeBFGS_Node::GeBFGS_Node(int max_score, int max_swaps, MMPuzzle & initial_state)
 }
 
 //Copy Constructor
-GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
+GrBeFGS_Node::GrBeFGS_Node(const GrBeFGS_Node & rhs)
 {
     m_state = rhs.m_state;
     m_prev_action = rhs.m_prev_action;
@@ -38,7 +38,7 @@ GeBFGS_Node::GeBFGS_Node(const GeBFGS_Node & rhs)
 }
 
 //Heuristic Function
-int GeBFGS_Node::getHeuristic()
+int GrBeFGS_Node::getHeuristic()
 {
     const int accuracy_offset = 7; //Fixed Offset; Increase to improve solution optimality
     //Accuracy levels of 7 and lower can solve puzzle 4 relatively quickly.
@@ -75,19 +75,18 @@ int GeBFGS_Node::getHeuristic()
 }
 
 //GOAL Function
-bool GeBFGS_Node::GOAL()
+bool GrBeFGS_Node::GOAL()
 {
     return (m_state.getScore() >= m_goal_score);
 }
 
 //ACTIONS Function
-vector<CoordPair> GeBFGS_Node::ACTIONS()
+vector<CoordPair> GrBeFGS_Node::ACTIONS()
 {
     return m_state.validMoves();
 }
 
-//Child Constructor
-GeBFGS_Node::GeBFGS_Node(GeBFGS_Node & parent, CoordPair & action)
+GrBeFGS_Node::GrBeFGS_Node(GrBeFGS_Node & parent, CoordPair & action)
 {
     m_state = parent.m_state;
     m_state.swap(action);

@@ -9,6 +9,7 @@
       <w>gameboard</w>
       <w>gebfgs</w>
       <w>ghpq</w>
+      <w>grbefgs</w>
       <w>heur</w>
       <w>pathcost</w>
       <w>postconditions</w>
