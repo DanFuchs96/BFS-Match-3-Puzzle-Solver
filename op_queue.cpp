@@ -1,22 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// PROGRAMMER: DANIEL FUCHS
 /// CLASS/SECT: CS5400A - ARTIFICIAL INTELLIGENCE
-/// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 3
-/// DATE: 2/15/18
-/// DESC: Function definition file for "Greedy Heuristic Priority Queue" class.
+/// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 4
+/// DATE: 2/22/18
+/// DESC: Function definition file for "Optimized Priority Queue" class.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include "grbefgs_node.h"
-#include "ghp_queue.h"
+#include "ags_node.h"
+#include "op_queue.h"
 using namespace std;
 
 //Clearing Function
-void GHP_Queue::clear()
+void OP_Queue::clear()
 {
     if (q_memory_head != NULL) //If any memory is present
     {
-        GHPQ_Cell* temp = q_memory_head;  //Stores next address of next cell to be emptied
+        OPQ_Cell* temp = q_memory_head;   //Stores next address of next cell to be emptied
         while(temp != NULL)               //While elements remain
         {
             temp = q_memory_head->m_next; //Address of next element
@@ -31,38 +31,38 @@ void GHP_Queue::clear()
 }
 
 //Node Insertion Function
-void GHP_Queue::insert(GrBeFGS_Node* & node)
+void OP_Queue::insert(AGS_Node* & node)
 {
     if (q_memory_head == NULL)     //If no memory is present
     {
-        q_front = new GHPQ_Cell(); //Create head cell
+        q_front = new OPQ_Cell();  //Create head cell
         q_front->m_node = node;    //Mark as head of front partition
         q_memory_head = q_front;   //Mark as head of memory
         return;                    //Insert complete
     }
     else //Memory is present
     {
-        int heur_val = node->m_heuristic; //Store heuristic value of incoming node
-        GHPQ_Cell* cell;                  //Store new cell created to contain node
-        if (q_memory_tail == q_front)     //If front partition is empty
+        int est_cost = node->m_estimated_cost; //Store estimated cost of incoming node
+        OPQ_Cell* cell;                        //Store new cell created to contain node
+        if (q_memory_tail == q_front)          //If front partition is empty
         {
-            cell = new GHPQ_Cell();       //Create new cell
-            cell->m_node = node;          //Store node
-            q_front->m_next = cell;       //Direct tail of back partition towards head of front partition
-            q_front = cell;               //Update head of front partition
+            cell = new OPQ_Cell();             //Create new cell
+            cell->m_node = node;               //Store node
+            q_front->m_next = cell;            //Direct tail of back partition towards head of front partition
+            q_front = cell;                    //Update head of front partition
         }
-        else if (heur_val < q_front->m_node->m_heuristic) //Else empty front partition;
-        {                                                 //If heuristic value is less than head of front partition
+        else if (est_cost < q_front->m_node->m_estimated_cost) //Else empty front partition;
+        {                                                      //If est cost is less than head of front partition
             if (q_memory_tail == NULL)  //If rear partition is empty
             {
-                cell = new GHPQ_Cell(); //Create new cell
+                cell = new OPQ_Cell();  //Create new cell
                 cell->m_node = node;    //Store node
                 cell->m_next = q_front; //Push old head of front partition to second slot of front partition
                 q_memory_head = cell;   //Mark as head of memory
             }
             else //Else rear partition is nonempty
             {
-                cell = new GHPQ_Cell(q_memory_tail, node);
+                cell = new OPQ_Cell(q_memory_tail, node);
                 //This uses the "Attachment Constructor". This creates a new cell, which is stored in "cell",
                 //stores node in that cell, and also addends it as the tail cell of q_memory_tail, which is the
                 //end of the rear partition. So, cell stores the head of the front partition.
@@ -73,25 +73,25 @@ void GHP_Queue::insert(GrBeFGS_Node* & node)
         else //Else insertion is to occur at some non-head location in front partition
         {
             bool index_found = false;                      //Becomes true if intermediate insertion occurs
-            GHPQ_Cell* target = q_front;                   //Stores currently evaluated node
+            OPQ_Cell* target = q_front;                    //Stores currently evaluated node
             while (target->m_next != NULL && !index_found) //While intermediate insertion is possible
             {
-                if (heur_val < target->m_next->m_node->m_heuristic) index_found = true;
-                //If heuristic value of incoming node is less than next cell's heuristic, exit loop.
-                else target = target->m_next;   //Else continue searching for insertion location.
+                if (est_cost < target->m_next->m_node->m_estimated_cost) index_found = true;
+                //If estimated cost of incoming node is less than next cell's estimated cost, exit loop.
+                else target = target->m_next;  //Else continue searching for insertion location.
             }
-            cell = new GHPQ_Cell(target, node); //Create new cell with node data, addend to cell "target"
-            return;                             //Insert Complete
+            cell = new OPQ_Cell(target, node); //Create new cell with node data, addend to cell "target"
+            return;                            //Insert Complete
         }
     }
 }
 
 //Boolean Search Function
-bool GHP_Queue::contains(GrBeFGS_Node* & node)
+bool OP_Queue::contains(AGS_Node* & node)
 {
     if(q_memory_head == NULL) return false; //Empty, cannot contain node
-    GrBeFGS_Node* target_node;               //Stores node being compared
-    for (GHPQ_Cell* target_cell = q_memory_head; target_cell != NULL; target_cell = target_cell->m_next)
+    AGS_Node* target_node;                  //Stores node being compared
+    for (OPQ_Cell* target_cell = q_memory_head; target_cell != NULL; target_cell = target_cell->m_next)
     {                                                                   //For loop to iterate across memory
         target_node = target_cell->m_node;                              //Pull node being compared
         if(target_node->m_state.getScore() == node->m_state.getScore()) //If scores match, check boards
@@ -116,13 +116,13 @@ bool GHP_Queue::contains(GrBeFGS_Node* & node)
 }
 
 //Queue Merging Function
-void GHP_Queue::merge(GHP_Queue &incoming_queue)
+void OP_Queue::merge(OP_Queue &incoming_queue)
 {
     if(incoming_queue.isEmpty()) return; //Empty
-    GrBeFGS_Node* node;                   //Stores node being transferred to calling queue
-    GHPQ_Cell* emptied_cell;             //Stores cell to be emptied
+    AGS_Node* node;                      //Stores node being transferred to calling queue
+    OPQ_Cell* emptied_cell;              //Stores cell to be emptied
 
-    // PERFORM FRONT INSERT (Only if calling queue empty, or new heuristic minimum)
+    // PERFORM FRONT INSERT (Only if calling queue empty, or new estimated cost minimum)
     if(isEmpty())                              //If calling queue is empty
     {
         emptied_cell = incoming_queue.q_front; //Cell to be emptied is head of incoming queue's front partition
@@ -130,33 +130,33 @@ void GHP_Queue::merge(GHP_Queue &incoming_queue)
         insert(node);                          //Move node into calling queue, letting insert() manage pointers
         delete emptied_cell;                   //Delete popped cell
     }
-    else if (incoming_queue.q_front->m_node->m_heuristic < q_front->m_node->m_heuristic) //New minimum heuristic value
+    else if (incoming_queue.q_front->m_node->m_estimated_cost < q_front->m_node->m_estimated_cost) //New min est cost
     {
         emptied_cell = incoming_queue.q_front; //Cell to be emptied is head of incoming queue's front partition
         node = incoming_queue.pop();           //Store node being transferred, pop cell from incoming queue
-        q_front = new GHPQ_Cell(q_memory_tail, node);
+        q_front = new OPQ_Cell(q_memory_tail, node);
         //Front insert occurs. This command creates a new cell, stores node in it, addends it to the end of the
         //rear partition of the calling queue, and lastly sets it as the head of the front partition.
         delete emptied_cell;
     }
 
     // PERFORM SEQUENTIAL INSERTS (This portion takes advantage of both queues already being sorted)
-    GHPQ_Cell* target = q_front;     //Stores current position in calling queue
+    OPQ_Cell* target = q_front;      //Stores current position in calling queue
     bool lcv;                        //Becomes false to indicate when to trigger insertion
-    int heur_val;                    //Stores heuristic value of incoming node
+    int est_cost;                    //Stores estimated cost of incoming node
     while(!incoming_queue.isEmpty()) //While not all nodes from incoming queue have been popped
     {
         emptied_cell = incoming_queue.q_front; //Store cell of node to be moved to calling queue
         node = incoming_queue.pop();           //Pop cell from incoming queue, store incoming node
         delete emptied_cell;                   //Delete popped cell from incoming queue
         lcv = true;                            //Mark loop control variable as true
-        heur_val = node->m_heuristic;          //Get incoming node's heuristic value
+        est_cost = node->m_estimated_cost;     //Get incoming node's estimated cost
         while (target->m_next != NULL && lcv)  //While end of calling queue has not been reached,
         {                                      //search for intermediate insertion locations
-            if (heur_val < target->m_next->m_node->m_heuristic) lcv = false; //If insertion location found
-            else target = target->m_next;                                    //Else advance down list
+            if (est_cost < target->m_next->m_node->m_estimated_cost) lcv = false; //If insertion location found
+            else target = target->m_next;                                         //Else advance down list
         }
-        target = new GHPQ_Cell(target, node);  //Addend node to target cell in calling queue
+        target = new OPQ_Cell(target, node);   //Addend node to target cell in calling queue
     }
     incoming_queue.q_memory_head = NULL; //All elements from incoming queue have been popped and deleted
     incoming_queue.q_memory_tail = NULL; //Clear back partition of incoming queue
@@ -164,7 +164,7 @@ void GHP_Queue::merge(GHP_Queue &incoming_queue)
 }
 
 //Popping Function
-GrBeFGS_Node* GHP_Queue::pop()
+AGS_Node* OP_Queue::pop()
 {
     if (isEmpty()) { cerr << "ERROR: Queue Empty" << endl; return NULL; }
     q_memory_tail = q_front;                                //Add head of front partition to tail of rear partition

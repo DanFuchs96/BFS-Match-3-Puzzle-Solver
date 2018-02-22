@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// PROGRAMMER: DANIEL FUCHS
 /// CLASS/SECT: CS5400A - ARTIFICIAL INTELLIGENCE
-/// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 3
-/// DATE: 2/15/18
-/// DESC: Main file. Implements GrBeFGS Algorithm and applies it solve an instance of the Match-3
+/// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 4
+/// DATE: 2/22/18
+/// DESC: Main file. Implements A*GS Algorithm and applies it solve an instance of the Match-3
 ///       based "Mechanical Matching Puzzle". Takes a puzzle instance file as input, outputs the
 ///       file and a sequence of valid moves that lead to solution, or specifies no solution.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,14 +15,14 @@
 #include <ctime>
 #include "coordpair.h"
 #include "mmpuzzle.h"
-#include "grbefgs_node.h"
-#include "ghp_queue.h"
+#include "ags_node.h"
+#include "op_queue.h"
 using namespace std;
 
 
 /// TABLE OF CONTENTS
 /// 1) PROBLEM-ABSTRACTION STRUCTS
-/// 2) GrBeFGS ALGORITHM
+/// 2) A*GS ALGORITHM
 /// 3) MAIN PROGRAM
 
 
@@ -50,7 +50,7 @@ struct Problem //Stores data relevant to representing the problem
 ///GREEDY BEST FIRST GRAPH SEARCH ALGORITHM///
 /////////////////////////////////////////////
 
-Solution GrBeFGS_Algorithm(Problem & info)
+Solution AGS_Algorithm(Problem &info)
 {
     // SOLUTION SETUP
     Solution results;        //Stores results
@@ -59,19 +59,19 @@ Solution GrBeFGS_Algorithm(Problem & info)
 
     // TREE-STRUCTURE SETUP
     t_time = clock();      //Algorithm-relevant declarations begin, so timer starts
-    GrBeFGS_Node* rootnode; //Store root node
-    rootnode = new GrBeFGS_Node(info.goal_score, info.swap_limit, info.puzzle); //Create root node for tree structure
+    AGS_Node* rootnode; //Store root node
+    rootnode = new AGS_Node(info.goal_score, info.swap_limit, info.puzzle); //Create root node for tree structure
 
     // FRONTIER / EXPLORED / SUCCESSORS INITIALIZATION
-    GHP_Queue FRONTIER;        //Priority Queue, stores pointers to frontier nodes, also contains EXPLORED partition
-    GHP_Queue SUCCESSORS;      //Priority Queue, stores and sorts intermediate child nodes
+    OP_Queue FRONTIER;         //Priority Queue, stores pointers to frontier nodes, also contains EXPLORED partition
+    OP_Queue SUCCESSORS;       //Priority Queue, stores and sorts intermediate child nodes
     FRONTIER.insert(rootnode); //Add root, or the initial state, to the frontier
-    GrBeFGS_Node* current_node; //Pointer used to track frontier node being evaluated
-    GrBeFGS_Node* child_node;   //Pointer used to store newly-created children
-    //The GHP_Queue is a special Priority Queue I designed to support an internal EXPLORED queue. In addition, it
-    //designed specifically to operate with GrBeFGS, and has many additions that allow it to operate very quickly.
-    //Please refer to "qhp_queue.h" for functionality info, and refer to (main.cpp:105) for an explanation as to
-    //how using two of these queues simplifies exploration and speed up execution time.
+    AGS_Node* current_node;    //Pointer used to track frontier node being evaluated
+    AGS_Node* child_node;      //Pointer used to store newly-created children
+    //The OP_Queue is a special Priority Queue I designed to support an internal EXPLORED queue. In addition, it's
+    //designed specifically for the Match-3 problem, and has many additions that allow it to operate very quickly.
+    //Please refer to "op_queue.h" for functionality info, and refer to (main.cpp:) for an explanation as to
+    //how using two of these queues simplifies exploration and speeds up execution time.
 
     // ACTION-RELATED DECLARATIONS
     vector<CoordPair> action_list; //Stores list of available actions to a particular node
@@ -95,14 +95,14 @@ Solution GrBeFGS_Algorithm(Problem & info)
             for(int i = 0; i < num_possible_moves; i++)     //For each valid swap
             {
                 selected_action = action_list[i];
-                child_node = new GrBeFGS_Node(*current_node, selected_action); //Create new child amd execute swap
+                child_node = new AGS_Node(*current_node, selected_action); //Create new child amd execute swap
                 if (SUCCESSORS.contains(child_node) || FRONTIER.contains(child_node)) delete child_node;
                 else SUCCESSORS.insert(child_node); //If child not in EXPLORED, then store as a SUCCESSOR
                 //Since EXPLORED is a partition stored in FRONTIER, checking for the child_node being in FRONTIER
                 //ensures that the new child has not already been EXPLORED, nor has it been scheduled to be
                 //explored. Likewise, checking SUCCESSORS ensures no duplicate states will be added.
 
-                // > Proof of Exploration Functionality (main.cpp:105)
+                // > Proof of Exploration Functionality (main.cpp:)
                 //Now, it is worth noting that no state can ever be "improved". The reason for this twofold:
                 //First, at any given iteration, all incoming children in SUCCESSORS will have the same path cost,
                 //so no state can improve a "duplicate". So, SUCCESSORS will never add redundant states to FRONTIER.
@@ -194,8 +194,8 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     scenario.goal_score = quota;
     scenario.swap_limit = max_swaps;
 
-    // EXECUTE GrBeFGS ALGORITHM
-    Solution result = GrBeFGS_Algorithm(scenario); //Executes GrBeFGS Algorithm, storing outcome
+    // EXECUTE A*GS ALGORITHM
+    Solution result = AGS_Algorithm(scenario); //Executes A*GS Algorithm, storing outcome
 
     // OUTPUT FILE GENERATION
     cout << quota << endl;
