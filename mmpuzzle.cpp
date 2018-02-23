@@ -166,6 +166,8 @@ void MMPuzzle::drawDivider()
 //Part Replacement / Settling
 void MMPuzzle::fall()
 {
+    cout << "Falling active" << endl;
+    draw();
     int replace_count = 0; //Number of parts replaced during current cycle
     for(int i = 0; i < m_height; i++)
     {
@@ -183,6 +185,7 @@ void MMPuzzle::fall()
             }
         }
     }
+    draw();
     return;
 }
 
@@ -257,6 +260,9 @@ void MMPuzzle::activateConsoles(int x1, int y1, int x2, int y2)
     bool isConsoleR = (m_board[x2][y2] > 5 && m_board[x2][y2] < 9);
     if(!isConsoleL && !isConsoleR) return; //If no consoles were given, console activation is complete
 
+    if(isConsoleL) m_rmv_flags[x1][y1] = true; //If first coordinate is a console, mark for removal
+    if(isConsoleR) m_rmv_flags[x2][y2] = true; //If second coordinate is a console, mark for removal
+
     int console_operation; //Stores the type of console operation being performed
     int parameter;         //Stores input parameter to console
     if(!isConsoleR || (m_board[x1][y1] < m_board[x2][y2] && isConsoleL))
@@ -284,7 +290,7 @@ void MMPuzzle::activateConsoles(int x1, int y1, int x2, int y2)
     {
         if(parameter == 8) purge(2);
         else if(parameter == 5) purge(1);
-        else purge(parameter);
+        else purge(parameter + 1);
     }
     return;
 }
