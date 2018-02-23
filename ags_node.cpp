@@ -40,17 +40,26 @@ AGS_Node::AGS_Node(const AGS_Node & rhs)
 //Heuristic Function
 int AGS_Node::getHeuristic()
 {
-    const int accuracy_offset = 0; //Fixed Offset; Increase to improve solution optimality
+    int remaining_swaps = m_swap_limit - m_pathcost;
+    //Number of allowed swaps left
 
     float ex_swap_val = m_goal_score / (float)m_swap_limit;
-    int anticipated_score = ((accuracy_offset + ex_swap_val) * m_pathcost);
-    int headway = ((m_state.getScore() - anticipated_score) / ex_swap_val);
-    return ((m_swap_limit - headway))*(m_goal_score > m_state.getScore());
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// > HEURISTIC DOCUMENTATION ///
-    ////////////////////////////////
-    /// doot
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Expected Swap Value is the minimum "average points earned per swap" required to reach a goal state
+
+    float anticipated_score = ex_swap_val * m_pathcost;
+    //Anticipated Score is the minimum amount of points required to ensure that "average points earned per swap"
+    //exceeds ex_swap_val
+
+    float headway = (m_state.getScore() - anticipated_score) / ex_swap_val;
+    //Headway is an estimation of the number of swaps the current state is "ahead" of m_swap_limit. In other words,
+    //it's an estimation of the result of [m_swap_limit - f(GOAL_NODE)].
+
+    int heuristic_value = remaining_swaps - (int)(headway + 0.5); //Note the "+ 0.5" is just for rounding
+    //By subtracting headway from remaining swaps, we find the estimated number of swaps needed to reach a goal
+    //state. This is the estimated distance from a goal state, and is thus a heuristic.
+
+    if(heuristic_value < 0) return 0; //If the heuristic is negative, a goal state was reached, so h(GOAL) = 0.
+    else return heuristic_value;
 }
 
 //GOAL Function
