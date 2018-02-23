@@ -2,13 +2,14 @@
 /// PROGRAMMER: DANIEL FUCHS
 /// CLASS/SECT: CS5400A - ARTIFICIAL INTELLIGENCE
 /// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 4
-/// DATE: 2/4/18
+/// DATE: 2/22/18
 /// DESC: Function definition file for "Mechanical Matching Puzzle" class.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <vector>
 #include <cstdio>
+#include <cmath>
 #include "coordpair.h"
 #include "mmpuzzle.h"
 using namespace std;
@@ -22,6 +23,7 @@ MMPuzzle::MMPuzzle() //This constructor creates a puzzle of absolute minimum siz
     m_height = 4;
     m_pool = 1;
     m_num_types = 2;
+    m_bonus_rules = false;
     vector<int> temp1;
     vector<bool> temp2;
 
@@ -39,7 +41,7 @@ MMPuzzle::MMPuzzle() //This constructor creates a puzzle of absolute minimum siz
 }
 
 //Explicit Constructor
-MMPuzzle::MMPuzzle(int width, int height, int pool, int num_types)
+MMPuzzle::MMPuzzle(int width, int height, int pool, int num_types, bool bonus)
 {
     // ASSIGNMENT
     m_score = 0;
@@ -47,6 +49,7 @@ MMPuzzle::MMPuzzle(int width, int height, int pool, int num_types)
     m_height = height;
     m_pool = pool;
     m_num_types = num_types;
+    m_bonus_rules = bonus;
     vector<int> temp1;
     vector<bool> temp2;
 
@@ -80,6 +83,7 @@ MMPuzzle::MMPuzzle(const MMPuzzle & rhs)
     m_height = rhs.m_height;
     m_pool = rhs.m_pool;
     m_num_types = rhs.m_num_types;
+    m_bonus_rules = rhs.m_bonus_rules;
 
     // GRID VALUE COPYING
     for(int i = 0; i < rhs.m_width; i++)
@@ -101,6 +105,7 @@ MMPuzzle & MMPuzzle::operator=(const MMPuzzle & rhs)
     m_height = rhs.m_height;
     m_pool = rhs.m_pool;
     m_num_types = rhs.m_num_types;
+    m_bonus_rules = rhs.m_bonus_rules;
 
     // EMPTY PREVIOUS GRID
     for(int i = 0; i < old_width; i++)
@@ -127,8 +132,18 @@ void MMPuzzle::setBoard(const vector< vector<int> > & initial_setup)
         for(int j = 0; j < m_width; j++)
         {
             temp = initial_setup[i][j]; //Note the the values are transposed from the grid's coordinates
-            if(temp > 0 && temp <= m_num_types) m_board[j][i] = temp;
-            else { cout << "Invalid part type, setting to empty space..." << endl; m_board[j][i] = 0; }
+            if(temp > 0 && temp <= m_num_types) //If a valid part type is incoming, assign
+            {
+                m_board[j][i] = temp;
+            }
+            else if(temp > 5 && temp < 9 && m_bonus_rules) //If a console is incoming and m_bonus_rules = true
+            {
+                m_board[j][i] = temp;
+            }
+            else
+            {
+                cout << "Invalid part type, setting to empty space..." << endl; m_board[j][i] = 0;
+            }
             //When an invalid part is detected, it is set to empty space.
         }
     }
@@ -179,6 +194,8 @@ void MMPuzzle::swap(int x1, int y1, int x2, int y2)
         int temp = m_board[x1][y1];
         m_board[x1][y1] = m_board[x2][y2];
         m_board[x2][y2] = temp;
+        if(m_bonus_rules) activateConsoles(x1, y1, x2, y2);
+        //If bonus rules are enabled, attempt to activate any consoles that might have been swapped
     }
     else //Note that this version of swap is private, so invalid swaps here should never occur
     {
@@ -195,13 +212,13 @@ bool MMPuzzle::checkSwap(int x1, int y1, int x2, int y2)
     char direction; //Indicates direction the tile closest to the origin is swapping
 
     //Determine which location is closer to the origin and set as "src"; also ensure one space between each location
-    if(x1 + 1 == x2 || y1 + 1 == y2) { src_x = x1; src_y = y1; }
+    if (x1 + 1 == x2 || y1 + 1 == y2) { src_x = x1; src_y = y1; }
     else if(x1 - 1 == x2 || y1 - 1 == y2) { src_x = x2; src_y = y2; }
     else return false; //else tiles are not adjacent
 
     //Determine whether source location is swapping to the Right, or Downwards
-    if(x1 != x2 && y1 == y2) { direction = 'R'; }
-    else if(x1 == x2 && y1 != y2) { direction = 'D'; }
+    if (x1 != x2 && y1 == y2) { direction = 'R'; }
+    else if (x1 == x2 && y1 != y2) { direction = 'D'; }
     else return false; //tiles are diagonal from each other, which is not a valid swap
 
     //Check for move validity within rules of game
@@ -211,6 +228,11 @@ bool MMPuzzle::checkSwap(int x1, int y1, int x2, int y2)
         //The above statement ensures that the swap operation occurs within the grid, but below the pool.
         return false; //swap goes out of bounds of game-space, invalid swap
     }
+
+    //If the tiles are adjacent, bonus rules are enabled, and a console match occurs, return true
+    if (m_board[x1][y1] > 5 && m_board[x1][y1] < 9 && m_bonus_rules) return true;
+    if (m_board[x2][y2] > 5 && m_board[x2][y2] < 9 && m_bonus_rules) return true;
+    //Otherwise, a swap must lead to a match to be valid
 
     //Perform the swap
     int temp = m_board[x1][y1];
@@ -225,6 +247,82 @@ bool MMPuzzle::checkSwap(int x1, int y1, int x2, int y2)
     m_board[x1][y1] = temp;
 
     return isValid;
+}
+
+//Activate Consoles
+void MMPuzzle::activateConsoles(int x1, int y1, int x2, int y2)
+{
+    if(!m_bonus_rules) return; //Consoles should not activate unless bonuses rules are enabled
+    bool isConsoleL = (m_board[x1][y1] > 5 && m_board[x1][y1] < 9);
+    bool isConsoleR = (m_board[x2][y2] > 5 && m_board[x2][y2] < 9);
+    if(!isConsoleL && !isConsoleR) return; //If no consoles were given, console activation is complete
+
+    int console_operation; //Stores the type of console operation being performed
+    int parameter;         //Stores input parameter to console
+    if(!isConsoleR || (m_board[x1][y1] < m_board[x2][y2] && isConsoleL))
+    {
+        console_operation = m_board[x1][y1];
+        parameter = m_board[x2][y2];
+    }
+    else
+    {
+        console_operation = m_board[x2][y2];
+        parameter = m_board[x1][y1];
+    }
+
+    if(console_operation == 6)
+    {
+        nuke(x1, y1);
+        nuke(x2, y2);
+    }
+    else if(console_operation == 7)
+    {
+        if(parameter < 1 || parameter > 5) purge(1);
+        else purge(parameter);
+    }
+    else if(console_operation == 8)
+    {
+        if(parameter == 8) purge(2);
+        else if(parameter == 5) purge(1);
+        else purge(parameter);
+    }
+    return;
+}
+
+//Console Effect 6
+void MMPuzzle::nuke(int x, int y)
+{
+    int x_dist;
+    int y_dist;
+    for(int i = 0; i < m_height; i++)
+    {
+        for(int j = 0; j < m_width; j++)
+        {
+            x_dist = abs(j - x);
+            y_dist = abs(i - y);
+            if(x_dist + y_dist <= 2) //If target is within a manhattan distance of 2 from the target
+            {
+                m_rmv_flags[j][i] = true;  //Mark part for removal
+            }
+        }
+    }
+    return;
+}
+
+//Console Effect 7/8
+void MMPuzzle::purge(int part_type)
+{
+    for(int i = m_pool; i < m_height; i++)
+    {
+        for(int j = 0; j < m_width; j++)
+        {
+            if(m_board[j][i] == part_type) //If target type is detected
+            {
+                m_rmv_flags[j][i] = true;  //Mark part for removal
+            }
+        }
+    }
+    return;
 }
 
 //Return all Valid Swaps

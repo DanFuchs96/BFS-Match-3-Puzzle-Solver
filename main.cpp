@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     int board_width = -1;
     int board_height = -1;
     int pool_height = -1;
-    int bonus_rule_id = -1;
+    bool bonus_rules = false;
     vector< vector<int> > initial_state;
     vector<int> row_store;
 
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     fin >> board_width;
     fin >> board_height;
     fin >> pool_height;
-    fin >> bonus_rule_id;
+    fin >> bonus_rules;
     for(int i = 0; i < board_width; i++) row_store.push_back(0);
     for(int i = 0; i < board_height; i++)
     {
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     fin.close();
 
     // INITIALIZE PUZZLE
-    MMPuzzle puzzle_grid(board_width, board_height, pool_height, part_types);
+    MMPuzzle puzzle_grid(board_width, board_height, pool_height, part_types, bonus_rules);
     puzzle_grid.setBoard(initial_state);
 
     // FORMULATE PROBLEM
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     cout << board_width << endl;
     cout << board_height << endl;
     cout << pool_height << endl;
-    cout << bonus_rule_id << endl;
+    cout << bonus_rules << endl;
     for(int i = 0; i < board_height; i++) //Output puzzle's initial state
     {
         for(int j = 0; j < board_width; j++)

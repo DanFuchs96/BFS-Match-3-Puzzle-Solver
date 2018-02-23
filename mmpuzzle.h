@@ -2,7 +2,7 @@
 /// PROGRAMMER: DANIEL FUCHS
 /// CLASS/SECT: CS5400A - ARTIFICIAL INTELLIGENCE
 /// ASSIGNMENT: MATCH3 PUZZLE ASSIGNMENT: PART 4
-/// DATE: 2/4/18
+/// DATE: 2/22/18
 /// DESC: Header file for "Mechanical Matching Puzzle" class.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,22 +27,26 @@ private:
     int m_height;       //Height of the grid
     int m_pool;         //Height of the pool
     int m_num_types;    //Number of distinct part types
+    bool m_bonus_rules; //Marks if bonus rules are being used
     vector< vector<bool> > m_rmv_flags; //Used to mark parts for removal
 
     void drawDivider(); //Outputs dividing line to screen; length is based on m_width.
     void fall();        //Settle all floating parts to bottom of board, replacing parts as necessary.
-    void swap(int x1, int y1, int x2, int y2);      //Attempts to perform specified swap. Utilizes checkSwap().
-    bool checkSwap(int x1, int y1, int x2, int y2); //Returns true if swap is valid, false otherwise.
+    void swap(int x1, int y1, int x2, int y2);             //Attempts to perform specified swap. Utilizes checkSwap().
+    bool checkSwap(int x1, int y1, int x2, int y2);        //Returns true if swap is valid, false otherwise.
+    void activateConsoles(int x1, int y1, int x2, int y2); //Triggers special console effects.
+    void nuke(int x, int y);   //Remove all parts within a 2-tile manhattan radius of the specified coordinate
+    void purge(int part_type); //Remove all instances of part_type outside the pool
 
 public:
     vector< vector<int> > m_board;      //Stores entire puzzle grid (pool region + game-space)
 
-    MMPuzzle();                                                 //Default Constructor - Creates Minimal Gameboard
-    MMPuzzle(int width, int height, int pool, int num_types);   //Explicit Constructor
-    MMPuzzle(const MMPuzzle & rhs);                             //Copy Constructor
-    MMPuzzle & operator=(const MMPuzzle & rhs);                 //Operator Equals Overload
-    void setBoard(const vector< vector<int> > & initial_setup); //Set Grid (m_board) Values
-    int getScore()const { return m_score; };                    //Accessor function for m_score
+    MMPuzzle();                                                             //Default Constructor (Minimal Gameboard)
+    MMPuzzle(int width, int height, int pool, int num_types, bool bonus);   //Explicit Constructor
+    MMPuzzle(const MMPuzzle & rhs);                                         //Copy Constructor
+    MMPuzzle & operator=(const MMPuzzle & rhs);                             //Operator Equals Overload
+    void setBoard(const vector< vector<int> > & initial_setup);             //Set Grid (m_board) Values
+    int getScore()const { return m_score; };                                //Accessor function for m_score
 
     vector<CoordPair> validMoves();             //Returns all valid swaps based on m_board.
     void draw();                                //Outputs current board state. Utilizes drawDivider().
