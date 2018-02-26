@@ -144,22 +144,6 @@ Solution AGS_Algorithm(Problem &info)
 ///MAIN PROGRAM///
 /////////////////
 
-void play(MMPuzzle & puzzle_grid)
-{
-    int a,b,c,d;
-    CoordPair stor;
-    while(d != -1)
-    {
-        puzzle_grid.draw();
-        cin >> a; cin >> b; cin >> c; cin >> d;
-        stor.setCord(a,b,c,d);
-        puzzle_grid.swap(stor);
-        puzzle_grid.match();
-    }
-    cout << puzzle_grid.getScore() << " points" << endl;
-    return;
-}
-
 int main(int argc, char* argv[]) //Expects filename to be passed as an argument
 {
     // DECLARATIONS
@@ -204,8 +188,6 @@ int main(int argc, char* argv[]) //Expects filename to be passed as an argument
     // INITIALIZE PUZZLE
     MMPuzzle puzzle_grid(board_width, board_height, pool_height, part_types, (bonus_rules != 0));
     puzzle_grid.setBoard(initial_state);
-
-    play(puzzle_grid); //TODO: Remove play function
 
     // FORMULATE PROBLEM
     Problem scenario;

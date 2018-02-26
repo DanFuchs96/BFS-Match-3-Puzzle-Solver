@@ -302,7 +302,7 @@ void MMPuzzle::nuke(int x, int y)
 {
     int x_dist;
     int y_dist;
-    for(int i = 0; i < m_height; i++)
+    for(int i = m_pool; i < m_height; i++)
     {
         for(int j = 0; j < m_width; j++)
         {
@@ -388,6 +388,7 @@ void MMPuzzle::processShape(int x, int y)
 //Crawling Function to explore Shapes
 void MMPuzzle::crawlShape(int x, int y)
 {
+    if(m_pool > y) return; //cout << "I shouldn't be up here..." << y << endl;
     m_shp_flags[x][y] = true; //Add current cell to shape
 
     //Directional Booleans; simply check there at least as many tiles in specified direction
@@ -444,7 +445,7 @@ void MMPuzzle::crawlShape(int x, int y)
     }
     if(equivalence[6]) //Leftwards
     {
-        if(m_shp_flags[x][y-1] == false)
+        if(m_shp_flags[x-1][y] == false)
         {
             if(equivalence[7] || equivalence[2]) crawlShape(x-1,y);
         }
@@ -499,27 +500,43 @@ char MMPuzzle::typeShape(int x, int y)
     {
         if(UP_1 && DN_1)
         {
-            if(m_shp_flags[x+(x_length-1)][y+1] && m_shp_flags[x+(x_length-1)][y-1]) return 'T';
+            if(m_shp_flags[x+(x_length-1)][y+1] && m_shp_flags[x+(x_length-1)][y-1])
+            {
+                if(x+x_length == m_width) return 'T';
+                else if(!m_shp_flags[x+x_length][y]) return 'T';
+            }
         }
         if(DN_2)
         {
             for (int i = 1; i < x_length - 1; i++)
             {
-                if(m_shp_flags[x+i][y+1] && m_shp_flags[x+i][y+2]) return 'T';
+                if(m_shp_flags[x+i][y+1] && m_shp_flags[x+i][y+2])
+                {
+                    if(!UP_1) return 'T';
+                    else if(!m_shp_flags[x+i][y-1]) return 'T';
+                }
             }
         }
     }
-    else if(y_length > 0)
+    if(y_length > 0)
     {
         if(LT_1 && RT_1)
         {
-            if(m_shp_flags[x+1][y+(y_length-1)] && m_shp_flags[x-1][y+(y_length-1)]) return 'T';
+            if(m_shp_flags[x+1][y+(y_length-1)] && m_shp_flags[x-1][y+(y_length-1)])
+            {
+                if(y+y_length == m_height) return 'T';
+                else if(!m_shp_flags[x][y+y_length]) return 'T';
+            }
         }
         if(RT_2)
         {
             for (int i = 1; i < y_length - 1; i++)
             {
-                if(m_shp_flags[x+1][y+i] && m_shp_flags[x+2][y+i]) return 'T';
+                if(m_shp_flags[x+1][y+i] && m_shp_flags[x+2][y+i])
+                {
+                    if(!LT_1) return 'T';
+                    else if(!m_shp_flags[x-1][y+i]) return 'T';
+                }
             }
         }
     }
@@ -547,7 +564,7 @@ char MMPuzzle::typeShape(int x, int y)
 
     //Bar-Shape Test
     if (x_length > 4) return 'B';
-    else if (y_length > 4) return 'B';
+    if (y_length > 4) return 'B';
 
     return 'N'; //No special shapes were found
 }
