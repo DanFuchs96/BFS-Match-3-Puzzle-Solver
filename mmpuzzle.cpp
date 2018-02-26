@@ -500,21 +500,13 @@ char MMPuzzle::typeShape(int x, int y)
     {
         if(UP_1 && DN_1)
         {
-            if(m_shp_flags[x+(x_length-1)][y+1] && m_shp_flags[x+(x_length-1)][y-1])
-            {
-                if(x+x_length == m_width) return 'T';
-                else if(!m_shp_flags[x+x_length][y]) return 'T';
-            }
+            if(m_shp_flags[x+(x_length-1)][y+1] && m_shp_flags[x+(x_length-1)][y-1]) return 'T';
         }
         if(DN_2)
         {
             for (int i = 1; i < x_length - 1; i++)
             {
-                if(m_shp_flags[x+i][y+1] && m_shp_flags[x+i][y+2])
-                {
-                    if(!UP_1) return 'T';
-                    else if(!m_shp_flags[x+i][y-1]) return 'T';
-                }
+                if(m_shp_flags[x+i][y+1] && m_shp_flags[x+i][y+2]) return 'T';
             }
         }
     }
@@ -522,21 +514,13 @@ char MMPuzzle::typeShape(int x, int y)
     {
         if(LT_1 && RT_1)
         {
-            if(m_shp_flags[x+1][y+(y_length-1)] && m_shp_flags[x-1][y+(y_length-1)])
-            {
-                if(y+y_length == m_height) return 'T';
-                else if(!m_shp_flags[x][y+y_length]) return 'T';
-            }
+            if(m_shp_flags[x+1][y+(y_length-1)] && m_shp_flags[x-1][y+(y_length-1)]) return 'T';
         }
         if(RT_2)
         {
             for (int i = 1; i < y_length - 1; i++)
             {
-                if(m_shp_flags[x+1][y+i] && m_shp_flags[x+2][y+i])
-                {
-                    if(!LT_1) return 'T';
-                    else if(!m_shp_flags[x-1][y+i]) return 'T';
-                }
+                if(m_shp_flags[x+1][y+i] && m_shp_flags[x+2][y+i]) return 'T';
             }
         }
     }
