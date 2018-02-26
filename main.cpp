@@ -6,6 +6,7 @@
 /// DESC: Main file. Implements A*GS Algorithm and applies it solve an instance of the Match-3
 ///       based "Mechanical Matching Puzzle". Takes a puzzle instance file as input, outputs the
 ///       file and a sequence of valid moves that lead to solution, or specifies no solution.
+///       Bonus rules for Match-3 have been implemented, and can be enabled in the input file.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>

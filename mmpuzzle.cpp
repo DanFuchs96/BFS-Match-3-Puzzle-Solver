@@ -465,7 +465,6 @@ char MMPuzzle::typeShape(int x, int y)
     bool DN_1 = y < m_height - 1;
     bool DN_2 = y < m_height - 2;
     bool LT_1 = x > 0;
-    bool LT_2 = x > 1;
     bool RT_1 = x < m_width - 1;
     bool RT_2 = x < m_width - 2;
 
