@@ -14,6 +14,8 @@
       <w>pathcost</w>
       <w>postconditions</w>
       <w>rootnode</w>
+      <w>subshape</w>
+      <w>subshapes</w>
     </words>
   </dictionary>
 </component>

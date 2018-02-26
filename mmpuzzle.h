@@ -29,14 +29,19 @@ private:
     int m_num_types;    //Number of distinct part types
     bool m_bonus_rules; //Marks if bonus rules are being used
     vector< vector<bool> > m_rmv_flags; //Used to mark parts for removal
+    vector< vector<bool> > m_shp_flags; //Used to determine bounds of a "shape"
+
 
     void drawDivider(); //Outputs dividing line to screen; length is based on m_width.
     void fall();        //Settle all floating parts to bottom of board, replacing parts as necessary.
     void swap(int x1, int y1, int x2, int y2);             //Attempts to perform specified swap. Utilizes checkSwap().
     bool checkSwap(int x1, int y1, int x2, int y2);        //Returns true if swap is valid, false otherwise.
-    void activateConsoles(int x1, int y1, int x2, int y2); //Triggers special console effects.
-    void nuke(int x, int y);   //Remove all parts within a 2-tile manhattan radius of the specified coordinate
-    void purge(int part_type); //Remove all instances of part_type outside the pool
+    void activateConsoles(int x1, int y1, int x2, int y2); //Trigger special console effects
+    void nuke(int x, int y);         //Remove all parts within a 2-tile manhattan radius of the specified coordinate
+    void purge(int part_type);       //Remove all instances of part_type outside the pool
+    void processShape(int x, int y); //Process and remove a match from the board, while following "shape rules"
+    void crawlShape(int x, int y);   //Crawl across board, setting m_shp_flags to group shape locations together
+    char typeShape(int x, int y);    //Returns T/L/B(ar)/N(one) based on what shapes were found at (x,y).
 
 public:
     vector< vector<int> > m_board;      //Stores entire puzzle grid (pool region + game-space)

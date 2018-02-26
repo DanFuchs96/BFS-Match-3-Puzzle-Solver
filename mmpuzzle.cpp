@@ -37,6 +37,7 @@ MMPuzzle::MMPuzzle() //This constructor creates a puzzle of absolute minimum siz
     {
         m_board.push_back(temp1);
         m_rmv_flags.push_back(temp2);
+        m_shp_flags.push_back(temp2);
     }
 }
 
@@ -71,6 +72,7 @@ MMPuzzle::MMPuzzle(int width, int height, int pool, int num_types, bool bonus)
     {
         m_board.push_back(temp1);
         m_rmv_flags.push_back(temp2);
+        m_shp_flags.push_back(temp2);
     }
 }
 
@@ -90,6 +92,7 @@ MMPuzzle::MMPuzzle(const MMPuzzle & rhs)
     {
         m_board.push_back(rhs.m_board[i]);
         m_rmv_flags.push_back(rhs.m_rmv_flags[i]);
+        m_shp_flags.push_back(rhs.m_shp_flags[i]);
     }
 }
 
@@ -112,6 +115,7 @@ MMPuzzle & MMPuzzle::operator=(const MMPuzzle & rhs)
     {
         m_board.pop_back();
         m_rmv_flags.pop_back();
+        m_shp_flags.pop_back();
     }
 
     // COPY IN NEW GRID
@@ -119,6 +123,7 @@ MMPuzzle & MMPuzzle::operator=(const MMPuzzle & rhs)
     {
         m_board.push_back(rhs.m_board[i]);
         m_rmv_flags.push_back(rhs.m_rmv_flags[i]);
+        m_shp_flags.push_back(rhs.m_shp_flags[i]);
     }
     return *this;
 }
@@ -166,8 +171,6 @@ void MMPuzzle::drawDivider()
 //Part Replacement / Settling
 void MMPuzzle::fall()
 {
-    cout << "Falling active" << endl;
-    draw();
     int replace_count = 0; //Number of parts replaced during current cycle
     for(int i = 0; i < m_height; i++)
     {
@@ -185,7 +188,6 @@ void MMPuzzle::fall()
             }
         }
     }
-    draw();
     return;
 }
 
@@ -331,6 +333,227 @@ void MMPuzzle::purge(int part_type)
     return;
 }
 
+//Shape Handling Function
+void MMPuzzle::processShape(int x, int y)
+{
+    if(m_rmv_flags[x][y] == false) return; //Shape head must be scheduled for removal
+    crawlShape(x, y);                      //Forms shape using m_shp_flags.
+
+    //Determine Shape Type of Highest Priority
+    char subshape_type;    //Can equal T (T-Shape), L (L-Shape), B (Bar-Shape), and N (No Shape).
+    char best_shape = 'N'; //Stores shape of highest priority found in all subshapes
+    for(int i = m_pool; i < m_height; i++)
+    {
+        for(int j = 0; j < m_width; j++)
+        {
+            if(m_shp_flags[j][i]) //For all potential subshape roots
+            {
+                subshape_type = typeShape(j, i); //Identify best shape rooted on (j, i);
+                if(best_shape != 'T')
+                {
+                    if (subshape_type == 'T') best_shape = 'T';
+                    else if(subshape_type == 'L' && best_shape != 'L') best_shape = 'L';
+                    else if(subshape_type == 'B' && best_shape == 'N') best_shape = 'B';
+                }
+            }
+        }
+    }
+
+    //Remove Shape
+    int lowestX = x; //Stores console insertion x
+    int lowestY = y; //Stores console insertion y
+    for(int i = m_pool; i < m_height; i++)
+    {
+        for(int j = 0; j < m_width; j++)
+        {
+            if(m_shp_flags[j][i]) //If part in shape
+            {
+                m_board[j][i] = 0; //Remove part
+                m_rmv_flags[j][i] = false;
+                m_shp_flags[j][i] = false;
+                m_score++;
+                lowestX = j;
+                lowestY = i;
+            }
+        }
+    }
+
+    //Insert Console, if special shape detected
+    if (best_shape == 'T') m_board[lowestX][lowestY] = 8;
+    else if (best_shape == 'L') m_board[lowestX][lowestY] = 7;
+    else if (best_shape == 'B') m_board[lowestX][lowestY] = 6;
+    else return;
+}
+
+//Crawling Function to explore Shapes
+void MMPuzzle::crawlShape(int x, int y)
+{
+    m_shp_flags[x][y] = true; //Add current cell to shape
+
+    //Directional Booleans; simply check there at least as many tiles in specified direction
+    bool UP_1 = y > m_pool;
+    bool UP_2 = y > m_pool + 1;
+    bool DN_1 = y < m_height - 1;
+    bool DN_2 = y < m_height - 2;
+    bool LT_1 = x > 0;
+    bool LT_2 = x > 1;
+    bool RT_1 = x < m_width - 1;
+    bool RT_2 = x < m_width - 2;
+    int shape_value = m_board[x][y];
+
+    //Begin computing "Equivalence"; used to avoid frequently recomputing cell values
+    vector<bool> equivalence;
+    equivalence.push_back(UP_1); //  Diagram: Let X be the position (x,y)
+    equivalence.push_back(UP_2); //
+    equivalence.push_back(RT_1); //  - - 1 - -   equivalence[i] returns true
+    equivalence.push_back(RT_2); //  - - 0 - -   if cell i (shown right) is
+    equivalence.push_back(DN_1); //  7 6 X 2 3   of same part type as cell X.
+    equivalence.push_back(DN_2); //  - - 4 - -
+    equivalence.push_back(LT_1); //  - - 5 - -
+    equivalence.push_back(LT_2); //
+    if(equivalence[0]) equivalence[0] = (m_board[x][y-1] == shape_value);
+    if(equivalence[1]) equivalence[1] = (m_board[x][y-2] == shape_value);
+    if(equivalence[2]) equivalence[2] = (m_board[x+1][y] == shape_value);
+    if(equivalence[3]) equivalence[3] = (m_board[x+2][y] == shape_value);
+    if(equivalence[4]) equivalence[4] = (m_board[x][y+1] == shape_value);
+    if(equivalence[5]) equivalence[5] = (m_board[x][y+2] == shape_value);
+    if(equivalence[6]) equivalence[6] = (m_board[x-1][y] == shape_value);
+    if(equivalence[7]) equivalence[7] = (m_board[x-2][y] == shape_value);
+
+    //Begin crawling
+    if(equivalence[0]) //Upwards
+    {
+        if(m_shp_flags[x][y-1] == false)
+        {
+            if(equivalence[1] || equivalence[4]) crawlShape(x,y-1);
+        }
+    }
+    if(equivalence[2]) //Rightwards
+    {
+        if(m_shp_flags[x+1][y] == false)
+        {
+            if(equivalence[3] || equivalence[6]) crawlShape(x+1,y);
+        }
+    }
+    if(equivalence[4]) //Downwards
+    {
+        if(m_shp_flags[x][y+1] == false)
+        {
+            if(equivalence[5] || equivalence[0]) crawlShape(x,y+1);
+        }
+    }
+    if(equivalence[6]) //Leftwards
+    {
+        if(m_shp_flags[x][y-1] == false)
+        {
+            if(equivalence[7] || equivalence[2]) crawlShape(x-1,y);
+        }
+    }
+    return;
+}
+
+//Type Identifying Function for Shapes
+char MMPuzzle::typeShape(int x, int y)
+{
+    //This function's return can equal T (T-Shape), L (L-Shape), B (Bar-Shape), and N (No Shape).
+    int x_length = 0;  //Stores length of root horizontal match
+    int y_length = 0;  //Stores length of root vertical match
+
+    //Directional Booleans; simply check there at least as many tiles in specified direction
+    bool UP_1 = y > m_pool;
+    bool UP_2 = y > m_pool + 1;
+    bool DN_1 = y < m_height - 1;
+    bool DN_2 = y < m_height - 2;
+    bool LT_1 = x > 0;
+    bool LT_2 = x > 1;
+    bool RT_1 = x < m_width - 1;
+    bool RT_2 = x < m_width - 2;
+
+    //Compute lengths of matches sourced at root
+    if(RT_2) //Compute horizontal match length
+    {
+        if(m_shp_flags[x+1][y] && m_shp_flags[x+2][y]) //If sequence of at least 3
+        {
+            for(int k = x; k < m_width; k++)
+            {
+                if(m_shp_flags[k][y]) x_length++;
+                else break; //End matching sequence
+            }
+        }
+    }
+    if(DN_2) //Compute vertical match length
+    {
+        if(m_shp_flags[x][y+1] && m_shp_flags[x][y+2]) //If sequence of at least 3
+        {
+            for(int k = y; k < m_height; k++)
+            {
+                if(m_shp_flags[x][k]) y_length++;
+                else break; //End matching sequence
+            }
+        }
+    }
+
+    //With this information, we can now begin testing for special shapes.
+
+    //T-Shape Tests
+    if(x_length > 0)
+    {
+        if(UP_1 && DN_1)
+        {
+            if(m_shp_flags[x+(x_length-1)][y+1] && m_shp_flags[x+(x_length-1)][y-1]) return 'T';
+        }
+        if(DN_2)
+        {
+            for (int i = 1; i < x_length - 1; i++)
+            {
+                if(m_shp_flags[x+i][y+1] && m_shp_flags[x+i][y+2]) return 'T';
+            }
+        }
+    }
+    else if(y_length > 0)
+    {
+        if(LT_1 && RT_1)
+        {
+            if(m_shp_flags[x+1][y+(y_length-1)] && m_shp_flags[x-1][y+(y_length-1)]) return 'T';
+        }
+        if(RT_2)
+        {
+            for (int i = 1; i < y_length - 1; i++)
+            {
+                if(m_shp_flags[x+1][y+i] && m_shp_flags[x+2][y+i]) return 'T';
+            }
+        }
+    }
+
+    //L-Shape Tests
+    if(x_length > 0)
+    {
+        if(DN_2)
+        {
+            if(m_shp_flags[x][y+1] && m_shp_flags[x][y+2]) return 'L';
+            else if(m_shp_flags[x+(x_length-1)][y+1] && m_shp_flags[x+(x_length-1)][y+2]) return 'L';
+        }
+        if(UP_2)
+        {
+            if(m_shp_flags[x+(x_length-1)][y-1] && m_shp_flags[x+(x_length-1)][y-2]) return 'L';
+        }
+    }
+    if(y_length > 0)
+    {
+        if(RT_2)
+        {
+            if(m_shp_flags[x+1][y+(y_length-1)] && m_shp_flags[x+2][y+(y_length-1)]) return 'L';
+        }
+    }
+
+    //Bar-Shape Test
+    if (x_length > 4) return 'B';
+    else if (y_length > 4) return 'B';
+
+    return 'N'; //No special shapes were found
+}
+
+
 //Return all Valid Swaps
 vector<CoordPair> MMPuzzle::validMoves()
 {
@@ -438,11 +661,19 @@ void MMPuzzle::match()
     {
         for(int j = 0; j < m_width; j++)
         {
-            if(m_rmv_flags[j][i]) //Part marked for removal
+            if(m_rmv_flags[j][i]) //If part marked for removal
             {
-                m_board[j][i] = 0; //Remove part
-                m_rmv_flags[j][i] = false;
-                match_count++; //Record removal
+                if(m_bonus_rules)
+                {
+                    processShape(j, i);
+                    match_count++;
+                }
+                else
+                {
+                    m_board[j][i] = 0; //Remove part
+                    m_rmv_flags[j][i] = false;
+                    match_count++; //Record removal
+                }
             }
         }
     }
@@ -450,7 +681,7 @@ void MMPuzzle::match()
     //Part 3: Checking for new matches caused by falling parts
     if(match_count > 0)
     {
-        m_score += match_count; //Update score
+        if(!m_bonus_rules) m_score += match_count; //Update score
         match(); //Recursively continue to check for matches
     }
     return;
